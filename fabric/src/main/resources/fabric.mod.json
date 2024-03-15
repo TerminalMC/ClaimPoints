@@ -1,0 +1,51 @@
+{
+    "schemaVersion": 1,
+    "id": "${mod_id}",
+    "version": "${version}",
+    "environment": "${mod_environment}",
+    "provides": [],
+    "accessWidener": "${mod_id}.accesswidener",
+    "entrypoints": {
+        "main": [],
+        "client": ["${mod_group}.${mod_id}.${mod_name}Fabric"],
+        "server": []
+    },
+    "mixins": [
+        "${mod_id}.mixins.json",
+        "${mod_id}.fabric.mixins.json"
+    ],
+    "depends": {
+        "java": ">=${java_version}",
+        "minecraft": "${minecraft_version_range_fabric}",
+        "fabricloader": "${fabric_loader_version_range}",
+        "xaerominimap": "*"
+    },
+    "recommends": {},
+    "suggests": {},
+    "conflicts": {},
+    "breaks": {},
+
+    "name": "${mod_name}",
+    "description": "${mod_description}",
+    "contact": {
+        "homepage": "${homepage_url}",
+        "sources": "${sources_url}",
+        "issues": "${issues_url}"
+    },
+    "authors": ["${mod_author}"],
+    "contributors": [],
+    "license": "${mod_license}",
+    "icon": "icon.png",
+    "custom": {
+        "modmenu": {
+            "links": {
+                "Contact": "${contact_url}"
+            }
+        },
+        "formatSpec": {
+            "links": {
+                "formatSpec": "https://fabricmc.net/wiki/documentation:fabric_mod_json_spec"
+            }
+        }
+    }
+}
