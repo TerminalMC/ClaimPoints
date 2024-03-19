@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * Includes derivative work of code used by
+ * <a href="https://github.com/CaffeineMC/sodium-fabric/">Sodium</a>
+ */
 public class Config {
     private static final String DEFAULT_FILE_NAME = "claimpoints.json";
     private static final Gson GSON = new GsonBuilder()
