@@ -8,7 +8,8 @@
     "entrypoints": {
         "main": [],
         "client": ["${mod_group}.${mod_id}.${mod_name}Fabric"],
-        "server": []
+        "server": [],
+        "modmenu": ["${mod_group}.${mod_id}.gui.ModMenuIntegration"]
     },
     "mixins": [
         "${mod_id}.mixins.json",
@@ -20,7 +21,10 @@
         "fabricloader": "${fabric_loader_version_range}",
         "xaerominimap": "*"
     },
-    "recommends": {},
+    "recommends": {
+        "cloth-config": "*",
+        "modmenu": ">=${modmenu_version}"
+    },
     "suggests": {},
     "conflicts": {},
     "breaks": {},

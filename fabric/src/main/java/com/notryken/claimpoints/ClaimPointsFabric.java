@@ -12,8 +12,8 @@ import net.minecraft.commands.CommandBuildContext;
 public class ClaimPointsFabric implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        ClaimPoints.waypointManager = new FabricWaypointManager();
         ClaimPoints.init();
-        ClaimPoints.setWaypointManager(new FabricWaypointManager());
 
         ClientTickEvents.END_CLIENT_TICK.register(ClaimPoints::onEndTick);
         ClientCommandRegistrationCallback.EVENT.register(ClaimPointsFabric::registerCommands);
@@ -21,6 +21,6 @@ public class ClaimPointsFabric implements ClientModInitializer {
 
     private static void registerCommands(CommandDispatcher<FabricClientCommandSource> dispatcher,
                                          CommandBuildContext context) {
-        Commands.register(dispatcher, context);
+        Commands.register(dispatcher);
     }
 }

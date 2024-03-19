@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -17,7 +17,7 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.arg
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class Commands {
-    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext context) {
+    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(literal("cp")
                 .then(literal("help")
                         .executes(ctx -> showHelp()))
@@ -32,10 +32,16 @@ public class Commands {
                         .executes(ctx -> getWorlds()))
                 .then(literal("add")
                         .then(argument("world name", StringArgumentType.greedyString())
+                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(MsgScanner.getWorlds(), builder)))
                                 .executes(ctx -> addFrom(StringArgumentType.getString(ctx, "world name")))))
                 .then(literal("clean")
                         .then(argument("world name", StringArgumentType.greedyString())
-                                .executes(ctx -> cleanFrom(StringArgumentType.getString(ctx, "world name"))))));
+                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(MsgScanner.getWorlds(), builder)))
+                                .executes(ctx -> cleanFrom(StringArgumentType.getString(ctx, "world name")))))
+                .then(literal("update")
+                        .then(argument("world name", StringArgumentType.greedyString())
+                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(MsgScanner.getWorlds(), builder)))
+                                .executes(ctx -> updateFrom(StringArgumentType.getString(ctx, "world name"))))));
     }
 
     private static int showHelp() {
@@ -47,7 +53,8 @@ public class Commands {
         msg.append(Component.literal("NotRyken").withStyle(ChatFormatting.GRAY));
         msg.append(" =============\n");
         msg.append(Component.literal("/cp worlds\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Lists the GriefPrevention worlds in which you have active claims.\n")
+        msg.append(Component.literal("Lists the GriefPrevention worlds in which you have active claims, and " +
+                        "stores them for future autocompletion.\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp add <world>\n").withStyle(ChatFormatting.DARK_AQUA));
@@ -58,6 +65,10 @@ public class Commands {
         msg.append(Component.literal("/cp clean <world>\n").withStyle(ChatFormatting.DARK_AQUA));
         msg.append(Component.literal("Removes all ClaimPoints in the active waypoint list, " +
                         "that do not match a claim in the specified world.\n")
+                .withStyle(ChatFormatting.GRAY));
+        msg.append("-----------------------------------------------\n");
+        msg.append(Component.literal("/cp update <world>\n").withStyle(ChatFormatting.DARK_AQUA));
+        msg.append(Component.literal("Combines /cp add <world> and /cp clean <world>\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints show\n").withStyle(ChatFormatting.DARK_AQUA));
@@ -107,19 +118,23 @@ public class Commands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int cleanFrom(String world) {
-        return scanFrom(world, false);
-    }
-
     private static int addFrom(String world) {
-        return scanFrom(world, true);
+        return scanFrom(world, MsgScanner.ScanType.ADD);
     }
 
-    private static int scanFrom(String world, boolean add) {
+    private static int cleanFrom(String world) {
+        return scanFrom(world, MsgScanner.ScanType.CLEAN);
+    }
+
+    private static int updateFrom(String world) {
+        return scanFrom(world, MsgScanner.ScanType.UPDATE);
+    }
+
+    private static int scanFrom(String world, MsgScanner.ScanType scanType) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
             connection.sendCommand("claimlist");
-            MsgScanner.startClaimScan(world, add);
+            MsgScanner.startClaimScan(world, scanType);
         }
         return Command.SINGLE_SUCCESS;
     }

@@ -46,6 +46,10 @@ subprojects {
             name = "Modrinth"
             url = "https://api.modrinth.com/maven"
         }
+        maven {
+            name = "Shedaniel"
+            url "https://maven.shedaniel.me/"
+        }
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -73,12 +77,14 @@ subprojects {
                 "fabric_loader_version": fabric_loader_version,
                 "fabric_loader_version_range": fabric_loader_version_range,
                 "fabric_api_version": fabric_api_version,
-                "fabric_xmm_version": fabric_xmm_version,
-//                "modmenu_version": modmenu_version,
+                "fabric_xm_version": fabric_xm_version,
+                "fabric_cc_version": fabric_cc_version,
+                "modmenu_version": modmenu_version,
 //                "neoforge_loader_version_range": neoforge_loader_version_range,
 //                "neoforge_version": neoforge_version,
 //                "neoforge_version_range": neoforge_version_range,
-//                "neoforge_xmm_version": neoforge_xmm_version,
+//                "neoforge_xm_version": neoforge_xm_version,
+//                "neoforge_cc_version": neoforge_cc_version,
                 "homepage_url": homepage_url,
                 "sources_url": sources_url,
                 "issues_url": issues_url,

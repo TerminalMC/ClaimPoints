@@ -2,6 +2,7 @@ package com.notryken.claimpoints.util;
 
 import com.mojang.datafixers.util.Pair;
 import com.notryken.claimpoints.ClaimPoints;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -14,18 +15,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import static com.notryken.claimpoints.ClaimPoints.config;
 
 public class MsgScanner {
 
-    // TODO make these all config-definable
-    private static final Pattern FIRST_LINE_PATTERN = Pattern.compile("^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total.$");
-    private static final List<Pattern> IGNORED_LINE_PATTERNS = new ArrayList<>(List.of(
-            Pattern.compile("^Claims:$")
-    ));
-    private static final Pattern CLAIM_LINE_PATTERN = Pattern.compile("^(.+): x(-?\\d+), z(-?\\d+) \\(-?(\\d+) blocks\\)$");
-    private static final List<Pattern> ENDING_LINE_PATTERNS = new ArrayList<>(List.of(
-            Pattern.compile("^ = -?\\d* blocks left to spend$")
-    ));
+    public enum ScanType {
+        ADD,
+        CLEAN,
+        UPDATE,
+    }
 
     private enum ScanState {
         WAITING,
@@ -39,9 +39,13 @@ public class MsgScanner {
     private static long stopTime = Long.MAX_VALUE;
 
     private static String world;
-    private static boolean scanAdd;
+    private static ScanType scanType;
     private static final Set<String> worlds = new HashSet<>();
     private static final List<Pair<Vec2,Integer>> claims = new ArrayList<>();
+
+    public static Stream<String> getWorlds() {
+        return worlds.stream();
+    }
 
     public static boolean scanning() {
         return scanning;
@@ -64,10 +68,10 @@ public class MsgScanner {
         scanState = ScanState.WAITING;
     }
 
-    public static void startClaimScan(@NotNull String pWorld, boolean pScanAdd) {
+    public static void startClaimScan(@NotNull String pWorld, ScanType pScanType) {
         stopTime = Long.MAX_VALUE;
         world = pWorld;
-        scanAdd = pScanAdd;
+        scanType = pScanType;
         claims.clear();
         scanning = true;
         worldScan = false;
@@ -104,7 +108,7 @@ public class MsgScanner {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (FIRST_LINE_PATTERN.matcher(content).find()) {
+                if (config().text.firstLineCompiled.matcher(content).find()) {
                     scanState = ScanState.READING;
                     return true;
                 }
@@ -114,22 +118,22 @@ public class MsgScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = CLAIM_LINE_PATTERN.matcher(content);
+                Matcher clMatcher = config().text.claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     worlds.add(clMatcher.group(1));
                     return true;
                 }
-                else if (anyMatches(content, IGNORED_LINE_PATTERNS)) {
+                else if (anyMatches(content, config().text.ignoredLinesCompiled)) {
                     return true;
                 }
                 else {
                     scanState = ScanState.ENDING;
                     handleWorlds();
-                    return anyMatches(content, ENDING_LINE_PATTERNS);
+                    return anyMatches(content, config().text.endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, ENDING_LINE_PATTERNS)) {
+                if (anyMatches(content, config().text.endingLinesCompiled)) {
                     return true;
                 }
                 else {
@@ -158,14 +162,13 @@ public class MsgScanner {
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendSystemMessage(msg);
         }
-        worlds.clear();
     }
 
     private static boolean claimScan(Component message) {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (FIRST_LINE_PATTERN.matcher(content).find()) {
+                if (config().text.firstLineCompiled.matcher(content).find()) {
                     scanState = ScanState.READING;
                     return true;
                 }
@@ -175,7 +178,7 @@ public class MsgScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = CLAIM_LINE_PATTERN.matcher(content);
+                Matcher clMatcher = config().text.claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     if (clMatcher.group(1).equals(world)) {
                         int x = Integer.parseInt(clMatcher.group(2));
@@ -185,17 +188,17 @@ public class MsgScanner {
                     }
                     return true;
                 }
-                else if (anyMatches(content, IGNORED_LINE_PATTERNS)) {
+                else if (anyMatches(content, config().text.ignoredLinesCompiled)) {
                     return true;
                 }
                 else {
                     scanState = ScanState.ENDING;
                     handleClaims();
-                    return anyMatches(content, ENDING_LINE_PATTERNS);
+                    return anyMatches(content, config().text.endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, ENDING_LINE_PATTERNS)) {
+                if (anyMatches(content, config().text.endingLinesCompiled)) {
                     return true;
                 }
                 else {
@@ -208,18 +211,19 @@ public class MsgScanner {
     }
 
     private static void handleClaims() {
-        if (scanAdd) {
-            addClaimPoints();
-        }
-        else {
-            cleanClaimPoints();
+        switch(scanType) {
+            case ADD -> addClaimPoints();
+            case CLEAN -> cleanClaimPoints();
+            case UPDATE -> updateClaimPoints();
         }
     }
 
     private static void addClaimPoints() {
         MutableComponent msg = ClaimPoints.PREFIX.copy();
         if (claims.isEmpty()) {
-            msg.append(Component.literal("No claims found for '" + world + "'."));
+            msg.append(Component.literal("No claims found for '" + world + "'. Use "));
+            msg.append(Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA));
+            msg.append(Component.literal(" to list GriefPrevention worlds in which you have active claims."));
         }
         else {
             int added = ClaimPoints.waypointManager.addClaimPoints(claims);
@@ -244,14 +248,34 @@ public class MsgScanner {
     }
 
     private static void cleanClaimPoints() {
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
         int removed = ClaimPoints.waypointManager.cleanClaimPoints(claims);
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
         StringBuilder sb = new StringBuilder("Removed ");
         sb.append(removed);
         sb.append(removed == 1 ? " ClaimPoint" : " ClaimPoints");
         sb.append(" not matching a claim in '");
         sb.append(world);
         sb.append("' from the active waypoint list.");
+        msg.append(sb.toString());
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        claims.clear();
+    }
+
+    private static void updateClaimPoints() {
+        int added = ClaimPoints.waypointManager.addClaimPoints(claims);
+        int removed = ClaimPoints.waypointManager.cleanClaimPoints(claims);
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        StringBuilder sb = new StringBuilder("Added ");
+        sb.append(added);
+        sb.append(added == 1 ? " ClaimPoint" : " ClaimPoints");
+        sb.append(" from '");
+        sb.append(world);
+        sb.append("' and cleaned ");
+        sb.append(removed);
+        sb.append(removed == 1 ? " ClaimPoint" : " ClaimPoints");
+        sb.append(" from the active waypoint list.");
         msg.append(sb.toString());
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendSystemMessage(msg);

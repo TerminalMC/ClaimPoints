@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
 }
 base {
-    archivesName = "${mod_name}-NeoForge-${minecraft_version}"
+    archivesName = "${mod_name}-NeoForge-${minecraft_version}-${neoforge_xm_version.split("_")[0]}"
 }
 
 // Automatically enable NeoForge AccessTransformers if the file exists

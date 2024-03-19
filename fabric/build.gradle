@@ -5,7 +5,7 @@ plugins {
     id 'fabric-loom' version '1.2.7' // https://mvnrepository.com/artifact/fabric-loom/fabric-loom.gradle.plugin
 }
 base {
-    archivesName = "${mod_name}-Fabric-${minecraft_version}"
+    archivesName = "${mod_name}-Fabric-${minecraft_version}-${fabric_xm_version.split("_")[0]}"
 }
 
 dependencies {
@@ -18,9 +18,13 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation project(":common")
 
-    modImplementation "maven.modrinth:xaeros-minimap:${fabric_xmm_version}"
+    modImplementation "maven.modrinth:xaeros-minimap:${fabric_xm_version}"
 
-//    modImplementation "maven.modrinth:modmenu:${modmenu_version}"
+    modApi("me.shedaniel.cloth:cloth-config-fabric:${project.fabric_cc_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
+    modImplementation "maven.modrinth:modmenu:${modmenu_version}"
 }
 
 loom {
