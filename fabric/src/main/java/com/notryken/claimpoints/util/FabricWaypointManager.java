@@ -6,8 +6,10 @@ import net.minecraft.world.phys.Vec2;
 import xaero.common.XaeroMinimapSession;
 import xaero.common.minimap.waypoints.Waypoint;
 import xaero.common.minimap.waypoints.WaypointWorld;
+import xaero.common.settings.ModSettings;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,6 +18,11 @@ import java.util.regex.Pattern;
 import static com.notryken.claimpoints.ClaimPoints.config;
 
 public class FabricWaypointManager implements WaypointManager {
+    @Override
+    public List<String> getColorNames() {
+        return Arrays.asList(ModSettings.ENCHANT_COLOR_NAMES);
+    }
+
     public XaeroMinimapSession getSession() {
         return XaeroMinimapSession.getCurrentSession();
     }
@@ -65,9 +72,9 @@ public class FabricWaypointManager implements WaypointManager {
         for (Pair<Vec2,Integer> claim : claims) {
             int x = (int)claim.getFirst().x;
             int z = (int)claim.getFirst().y;
-            String name = "Claim (" + claim.getSecond() + ")";
             if (!anyWpMatches(x, z, config().cpSettings.nameCompiled, wpList)) {
-                wpList.add(new Waypoint(x, 0, z, name, "CP", 2, 0, false, false));
+                wpList.add(new Waypoint(x, 0, z, String.format(config().cpSettings.nameFormat, claim.getSecond()),
+                        config().cpSettings.alias, config().cpSettings.colorIdx, 0, false, false));
                 added++;
             }
         }
@@ -211,5 +218,51 @@ public class FabricWaypointManager implements WaypointManager {
 
         saveWaypoints(session, wpWorld);
         return removed;
+    }
+
+    @Override
+    public void setClaimPointNameFormat(String nameFormat) {
+        XaeroMinimapSession session = getSession();
+        WaypointWorld wpWorld = getWpWorld(session);
+        List<Waypoint> wpList = getWpList(wpWorld);
+
+        for (Waypoint wp : wpList) {
+            Matcher matcher = config().cpSettings.nameCompiled.matcher(wp.getName());
+            if (matcher.find()) {
+                wp.setName(String.format(nameFormat, Integer.parseInt(matcher.group(1))));
+            }
+        }
+
+        saveWaypoints(session, wpWorld);
+    }
+
+    @Override
+    public void setClaimPointAlias(String alias) {
+        XaeroMinimapSession session = getSession();
+        WaypointWorld wpWorld = getWpWorld(session);
+        List<Waypoint> wpList = getWpList(wpWorld);
+
+        for (Waypoint wp : wpList) {
+            if (config().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+                wp.setSymbol(alias);
+            }
+        }
+
+        saveWaypoints(session, wpWorld);
+    }
+
+    @Override
+    public void setClaimPointColor(int colorIdx) {
+        XaeroMinimapSession session = getSession();
+        WaypointWorld wpWorld = getWpWorld(session);
+        List<Waypoint> wpList = getWpList(wpWorld);
+
+        for (Waypoint wp : wpList) {
+            if (config().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+                wp.setColor(colorIdx);
+            }
+        }
+
+        saveWaypoints(session, wpWorld);
     }
 }

@@ -15,7 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Includes derivative work of code used by
@@ -30,6 +29,9 @@ public class Config {
 
     public static final String DEFAULT_CLAIMPOINT_FORMAT = "Claim (%d)";
     public static final String DEFAULT_CLAIMPOINT_PATTERN = "^Claim \\((\\d+)\\)$";
+    public static final String DEFAULT_CLAIMPOINT_ALIAS = "CP";
+    public static final String DEFAULT_CLAIMPOINT_COLOR =
+            ClaimPoints.waypointColorNames.get(ClaimPoints.waypointColorNames.size() - 1);
     public static final String DEFAULT_FIRST_LINE_PATTERN = "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total.$";
     public static final String DEFAULT_CLAIM_LINE_PATTERN = "^(.+): x(-?\\d+), z(-?\\d+) \\(-?(\\d+) blocks\\)$";
     public static final List<String> DEFAULT_IGNORED_LINE_PATTERNS = List.of(
@@ -48,6 +50,9 @@ public class Config {
         public String nameFormat = DEFAULT_CLAIMPOINT_FORMAT;
         public String namePattern = DEFAULT_CLAIMPOINT_PATTERN;
         public transient Pattern nameCompiled;
+        public String alias = DEFAULT_CLAIMPOINT_ALIAS;
+        public String color = DEFAULT_CLAIMPOINT_COLOR;
+        public transient int colorIdx;
     }
 
     public static class GriefPreventionSettings {
@@ -61,17 +66,33 @@ public class Config {
         public transient List<Pattern> endingLinesCompiled;
     }
 
-    public void createPatterns() {
-        this.cpSettings.nameCompiled = Pattern.compile(cpSettings.namePattern);
-        this.gpSettings.firstLineCompiled = Pattern.compile(gpSettings.firstLinePattern);
-        this.gpSettings.claimLineCompiled = Pattern.compile(gpSettings.claimLinePattern);
-        this.gpSettings.ignoredLinesCompiled = new ArrayList<>();
-        for (String str : this.gpSettings.ignoredLinePatterns) {
-            this.gpSettings.ignoredLinesCompiled.add(Pattern.compile(str));
+    public void verifyConfig() {
+        int indexOfSize = cpSettings.nameFormat.indexOf("%d");
+        if (indexOfSize == -1) {
+            throw new IllegalArgumentException("Name format '" + cpSettings.nameFormat +
+                    "' missing required sequence %d.");
         }
-        this.gpSettings.endingLinesCompiled = new ArrayList<>();
-        for (String str : this.gpSettings.endingLinePatterns) {
-            this.gpSettings.endingLinesCompiled.add(Pattern.compile(str));
+        else {
+            cpSettings.namePattern = "^" + Pattern.quote(cpSettings.nameFormat.substring(0, indexOfSize)) +
+                    "(\\d+)" + Pattern.quote(cpSettings.nameFormat.substring(indexOfSize + 2)) + "$";
+            cpSettings.nameCompiled = Pattern.compile(cpSettings.namePattern);
+        }
+        if (cpSettings.alias.length() > 2) {
+            throw new IllegalArgumentException("Alias '" + cpSettings.alias + "' is longer than 2 characters.");
+        }
+        cpSettings.colorIdx = ClaimPoints.waypointColorNames.indexOf(cpSettings.color);
+        if (cpSettings.colorIdx == -1) {
+            throw new IllegalArgumentException("Color '" + cpSettings.color + "' is not a valid waypoint color.");
+        }
+        gpSettings.firstLineCompiled = Pattern.compile(gpSettings.firstLinePattern);
+        gpSettings.claimLineCompiled = Pattern.compile(gpSettings.claimLinePattern);
+        gpSettings.ignoredLinesCompiled = new ArrayList<>();
+        for (String str : gpSettings.ignoredLinePatterns) {
+            gpSettings.ignoredLinesCompiled.add(Pattern.compile(str));
+        }
+        gpSettings.endingLinesCompiled = new ArrayList<>();
+        for (String str : gpSettings.endingLinePatterns) {
+            gpSettings.endingLinesCompiled.add(Pattern.compile(str));
         }
     }
 
@@ -81,17 +102,17 @@ public class Config {
         if (config == null) {
             ClaimPoints.LOG.info("Using default configuration.");
             config = new Config();
-            config.createPatterns();
+            config.verifyConfig();
         }
         else {
             try {
-                config.createPatterns();
+                config.verifyConfig();
             }
-            catch (PatternSyntaxException e) {
-                ClaimPoints.LOG.warn("Invalid regex in config.", e);
+            catch (IllegalArgumentException e) {
+                ClaimPoints.LOG.warn("Invalid config.", e);
                 ClaimPoints.LOG.info("Using default configuration.");
                 config = new Config();
-                config.createPatterns();
+                config.verifyConfig();
             }
         }
 

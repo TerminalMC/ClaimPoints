@@ -8,7 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
-import java.util.regex.Pattern;
+import java.util.List;
 
 public class ClaimPoints {
     // Constants
@@ -22,13 +22,15 @@ public class ClaimPoints {
             .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
             .withStyle(ChatFormatting.GRAY);
 
-    public static final Pattern CLAIMPOINT_NAME_PATTERN = Pattern.compile("^Claim \\(\\d+\\)$");
-
     public static WaypointManager waypointManager = null;
+    public static List<String> waypointColorNames = null;
 
     private static Config CONFIG;
 
-    public static void init() {
+    public static void init(WaypointManager pWaypointManager) {
+        waypointManager = pWaypointManager;
+        waypointColorNames = waypointManager.getColorNames();
+
         CONFIG = Config.load();
     }
 
@@ -41,7 +43,7 @@ public class ClaimPoints {
 
     public static void restoreDefaultConfig() {
         CONFIG = new Config();
-        CONFIG.createPatterns();
+        CONFIG.verifyConfig();
         CONFIG.writeToFile();
     }
 

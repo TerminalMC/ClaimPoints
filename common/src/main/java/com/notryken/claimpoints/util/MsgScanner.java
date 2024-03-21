@@ -264,30 +264,30 @@ public class MsgScanner {
     }
 
     private static void updateClaimPoints() {
-        MutableComponent warnMsg = null;
-        if (claims.isEmpty()) {
-            warnMsg = ClaimPoints.PREFIX.copy();
-            warnMsg.append(Component.literal("No claims found for '" + world + "'. Use "));
-            warnMsg.append(Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA));
-            warnMsg.append(Component.literal(" to list GriefPrevention worlds in which you have active claims."));
-        }
         MutableComponent msg = ClaimPoints.PREFIX.copy();
-        int[] totals = ClaimPoints.waypointManager.updateClaimPoints(claims);
-        StringBuilder sb = new StringBuilder("Added ");
-        sb.append(totals[0]);
-        sb.append(totals[0] == 1 ? " new  ClaimPoint" : " new ClaimPoints");
-        sb.append(" from '");
-        sb.append(world);
-        sb.append("', updated ");
-        sb.append(totals[1]);
-        sb.append(totals[1] == 1 ? " ClaimPoint size" : " ClaimPoint sizes");
-        sb.append(", and removed ");
-        sb.append(totals[2]);
-        sb.append(totals[2] == 1 ? " stray ClaimPoint" : " stray ClaimPoints");
-        sb.append(" from the active waypoint list.");
-        msg.append(sb.toString());
+        if (claims.isEmpty()) {
+            msg.append(Component.literal("No claims found for '" + world + "'. Use "));
+            msg.append(Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA));
+            msg.append(Component.literal(" to list GriefPrevention worlds in which you have active claims, " +
+                    "or use /cp clean <world> to remove ClaimPoints."));
+        }
+        else {
+            int[] totals = ClaimPoints.waypointManager.updateClaimPoints(claims);
+            StringBuilder sb = new StringBuilder("Added ");
+            sb.append(totals[0]);
+            sb.append(totals[0] == 1 ? " new  ClaimPoint" : " new ClaimPoints");
+            sb.append(" from '");
+            sb.append(world);
+            sb.append("', updated ");
+            sb.append(totals[1]);
+            sb.append(totals[1] == 1 ? " ClaimPoint size" : " ClaimPoint sizes");
+            sb.append(", and removed ");
+            sb.append(totals[2]);
+            sb.append(totals[2] == 1 ? " stray ClaimPoint" : " stray ClaimPoints");
+            sb.append(" from the active waypoint list.");
+            msg.append(sb.toString());
+        }
         if (Minecraft.getInstance().player != null) {
-            if (warnMsg != null) Minecraft.getInstance().player.sendSystemMessage(warnMsg);
             Minecraft.getInstance().player.sendSystemMessage(msg);
         }
         claims.clear();

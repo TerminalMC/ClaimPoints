@@ -13,6 +13,9 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
+import java.util.regex.Pattern;
+
+import static com.notryken.claimpoints.ClaimPoints.config;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
@@ -27,7 +30,18 @@ public class Commands {
                         .then(literal("hide")
                                 .executes(ctx -> hideClaimPoints()))
                         .then(literal("clear")
-                                .executes(ctx -> clearClaimPoints())))
+                                .executes(ctx -> clearClaimPoints()))
+                        .then(literal("set")
+                                .then(literal("nameformat")
+                                        .then(argument("name format", StringArgumentType.greedyString())
+                                                .executes(ctx -> setNameFormat(StringArgumentType.getString(ctx, "name format")))))
+                                .then(literal("alias")
+                                        .then(argument("alias", StringArgumentType.greedyString())
+                                                .executes(ctx -> setAlias(StringArgumentType.getString(ctx, "alias")))))
+                                .then(literal("color")
+                                        .then(argument("color", StringArgumentType.greedyString())
+                                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ClaimPoints.waypointColorNames, builder)))
+                                                .executes(ctx -> setColor(StringArgumentType.getString(ctx, "color")))))))
                 .then(literal("worlds")
                         .executes(ctx -> getWorlds()))
                 .then(literal("add")
@@ -83,6 +97,19 @@ public class Commands {
         msg.append(Component.literal("/cp waypoints clear\n").withStyle(ChatFormatting.DARK_AQUA));
         msg.append(Component.literal("Permanently deletes all ClaimPoints in the active waypoint list.\n")
                 .withStyle(ChatFormatting.GRAY));
+        msg.append("-----------------------------------------------\n");
+        msg.append(Component.literal("/cp waypoints set nameformat <name format>\n").withStyle(ChatFormatting.DARK_AQUA));
+        msg.append(Component.literal("Sets the name format of all ClaimPoints to the specified value. " +
+                        "Note: the name format must contain %d.\n")
+                .withStyle(ChatFormatting.GRAY));
+        msg.append("-----------------------------------------------\n");
+        msg.append(Component.literal("/cp waypoints set alias <alias>\n").withStyle(ChatFormatting.DARK_AQUA));
+        msg.append(Component.literal("Sets the alias (symbol) of all ClaimPoints to the specified value.\n")
+                .withStyle(ChatFormatting.GRAY));
+        msg.append("-----------------------------------------------\n");
+        msg.append(Component.literal("/cp waypoints set color <color>\n").withStyle(ChatFormatting.DARK_AQUA));
+        msg.append(Component.literal("Sets the color of all ClaimPoints to the specified value.\n")
+                .withStyle(ChatFormatting.GRAY));
         msg.append("===============================================\n");
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendSystemMessage(msg);
@@ -104,6 +131,61 @@ public class Commands {
         int removed = ClaimPoints.waypointManager.clearClaimPoints();
         MutableComponent msg = ClaimPoints.PREFIX.copy();
         msg.append("Removed all ClaimPoints (" + removed + ").");
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setNameFormat(String nameFormat) {
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        int indexOfSize = nameFormat.indexOf("%d");
+        if (indexOfSize != -1) {
+            ClaimPoints.waypointManager.setClaimPointNameFormat(nameFormat);
+            config().cpSettings.nameFormat = nameFormat;
+            config().cpSettings.namePattern = "^" + Pattern.quote(nameFormat.substring(0, indexOfSize)) +
+                    "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
+            config().cpSettings.nameCompiled = Pattern.compile(config().cpSettings.namePattern);
+            config().writeToFile();
+            msg.append("Set ClaimPoint name format to '" + nameFormat + "'.");
+        }
+        else {
+            msg.append("'" + nameFormat + "' is not a valid name format. Requires %d for claim size.");
+        }
+
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setAlias(String alias) {
+        alias = alias.length() <= 2 ? alias : alias.substring(0, 2);
+        ClaimPoints.waypointManager.setClaimPointAlias(alias);
+        config().cpSettings.alias = alias;
+        config().writeToFile();
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        msg.append("Set alias of all ClaimPoints to " + alias);
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setColor(String color) {
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        int index = ClaimPoints.waypointColorNames.indexOf(color);
+        if (index == -1) {
+            msg.append("'" + color + "' is not a valid color ID.");
+        }
+        else {
+            ClaimPoints.waypointManager.setClaimPointColor(index);
+            config().cpSettings.color = color;
+            config().cpSettings.colorIdx = index;
+            config().writeToFile();
+            msg.append("Set color of all ClaimPoints to " + color);
+        }
+
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendSystemMessage(msg);
         }

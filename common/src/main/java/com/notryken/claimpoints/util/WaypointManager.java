@@ -6,6 +6,8 @@ import net.minecraft.world.phys.Vec2;
 import java.util.List;
 
 public interface WaypointManager {
+    List<String> getColorNames();
+
     int addClaimPoints(List<Pair<Vec2,Integer>> claims);
 
     int cleanClaimPoints(List<Pair<Vec2,Integer>> claims);
@@ -17,4 +19,10 @@ public interface WaypointManager {
     int hideClaimPoints();
 
     int clearClaimPoints();
+
+    void setClaimPointNameFormat(String nameFormat);
+
+    void setClaimPointAlias(String alias);
+
+    void setClaimPointColor(int colorIdx);
 }
