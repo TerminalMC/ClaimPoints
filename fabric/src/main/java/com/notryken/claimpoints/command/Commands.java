@@ -68,7 +68,8 @@ public class Commands {
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp update <world>\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Combines /cp add <world> and /cp clean <world>\n")
+        msg.append(Component.literal("Combines /cp add <world> and /cp clean <world>, and also updates " +
+                        "ClaimPoint size indicators.\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints show\n").withStyle(ChatFormatting.DARK_AQUA));

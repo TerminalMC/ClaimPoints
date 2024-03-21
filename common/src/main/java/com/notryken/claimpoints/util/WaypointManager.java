@@ -10,6 +10,8 @@ public interface WaypointManager {
 
     int cleanClaimPoints(List<Pair<Vec2,Integer>> claims);
 
+    int[] updateClaimPoints(List<Pair<Vec2,Integer>> claims);
+
     int showClaimPoints();
 
     int hideClaimPoints();

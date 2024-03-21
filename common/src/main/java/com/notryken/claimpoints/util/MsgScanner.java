@@ -108,7 +108,7 @@ public class MsgScanner {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (config().text.firstLineCompiled.matcher(content).find()) {
+                if (config().gpSettings.firstLineCompiled.matcher(content).find()) {
                     scanState = ScanState.READING;
                     return true;
                 }
@@ -118,22 +118,22 @@ public class MsgScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = config().text.claimLineCompiled.matcher(content);
+                Matcher clMatcher = config().gpSettings.claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     worlds.add(clMatcher.group(1));
                     return true;
                 }
-                else if (anyMatches(content, config().text.ignoredLinesCompiled)) {
+                else if (anyMatches(content, config().gpSettings.ignoredLinesCompiled)) {
                     return true;
                 }
                 else {
                     scanState = ScanState.ENDING;
                     handleWorlds();
-                    return anyMatches(content, config().text.endingLinesCompiled);
+                    return anyMatches(content, config().gpSettings.endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, config().text.endingLinesCompiled)) {
+                if (anyMatches(content, config().gpSettings.endingLinesCompiled)) {
                     return true;
                 }
                 else {
@@ -168,7 +168,7 @@ public class MsgScanner {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (config().text.firstLineCompiled.matcher(content).find()) {
+                if (config().gpSettings.firstLineCompiled.matcher(content).find()) {
                     scanState = ScanState.READING;
                     return true;
                 }
@@ -178,7 +178,7 @@ public class MsgScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = config().text.claimLineCompiled.matcher(content);
+                Matcher clMatcher = config().gpSettings.claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     if (clMatcher.group(1).equals(world)) {
                         int x = Integer.parseInt(clMatcher.group(2));
@@ -188,17 +188,17 @@ public class MsgScanner {
                     }
                     return true;
                 }
-                else if (anyMatches(content, config().text.ignoredLinesCompiled)) {
+                else if (anyMatches(content, config().gpSettings.ignoredLinesCompiled)) {
                     return true;
                 }
                 else {
                     scanState = ScanState.ENDING;
                     handleClaims();
-                    return anyMatches(content, config().text.endingLinesCompiled);
+                    return anyMatches(content, config().gpSettings.endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, config().text.endingLinesCompiled)) {
+                if (anyMatches(content, config().gpSettings.endingLinesCompiled)) {
                     return true;
                 }
                 else {
@@ -264,20 +264,30 @@ public class MsgScanner {
     }
 
     private static void updateClaimPoints() {
-        int added = ClaimPoints.waypointManager.addClaimPoints(claims);
-        int removed = ClaimPoints.waypointManager.cleanClaimPoints(claims);
+        MutableComponent warnMsg = null;
+        if (claims.isEmpty()) {
+            warnMsg = ClaimPoints.PREFIX.copy();
+            warnMsg.append(Component.literal("No claims found for '" + world + "'. Use "));
+            warnMsg.append(Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA));
+            warnMsg.append(Component.literal(" to list GriefPrevention worlds in which you have active claims."));
+        }
         MutableComponent msg = ClaimPoints.PREFIX.copy();
+        int[] totals = ClaimPoints.waypointManager.updateClaimPoints(claims);
         StringBuilder sb = new StringBuilder("Added ");
-        sb.append(added);
-        sb.append(added == 1 ? " ClaimPoint" : " ClaimPoints");
+        sb.append(totals[0]);
+        sb.append(totals[0] == 1 ? " new  ClaimPoint" : " new ClaimPoints");
         sb.append(" from '");
         sb.append(world);
-        sb.append("' and cleaned ");
-        sb.append(removed);
-        sb.append(removed == 1 ? " ClaimPoint" : " ClaimPoints");
+        sb.append("', updated ");
+        sb.append(totals[1]);
+        sb.append(totals[1] == 1 ? " ClaimPoint size" : " ClaimPoint sizes");
+        sb.append(", and removed ");
+        sb.append(totals[2]);
+        sb.append(totals[2] == 1 ? " stray ClaimPoint" : " stray ClaimPoints");
         sb.append(" from the active waypoint list.");
         msg.append(sb.toString());
         if (Minecraft.getInstance().player != null) {
+            if (warnMsg != null) Minecraft.getInstance().player.sendSystemMessage(warnMsg);
             Minecraft.getInstance().player.sendSystemMessage(msg);
         }
         claims.clear();

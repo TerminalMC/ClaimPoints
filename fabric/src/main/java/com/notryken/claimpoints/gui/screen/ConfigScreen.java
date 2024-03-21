@@ -29,19 +29,28 @@ public class ConfigScreen {
 
         ConfigEntryBuilder eb = builder.entryBuilder();
 
-        ConfigCategory text = builder.getOrCreateCategory(Component.literal("Text"));
+        ConfigCategory claimPoints = builder.getOrCreateCategory(Component.literal("ClaimPoints"));
 
-        text.addEntry(eb.startStrField(Component.literal("First Line Pattern"), config.text.firstLinePattern)
-                .setDefaultValue(Config.DEFAULT_FIRST_LINE_PATTERN).setSaveConsumer(var -> config.text.firstLinePattern = var).build());
+        claimPoints.addEntry(eb.startStrField(Component.literal("ClaimPoint Name Format"), config.gpSettings.firstLinePattern)
+                .setDefaultValue(Config.DEFAULT_CLAIMPOINT_FORMAT).setSaveConsumer(var -> config.cpSettings.nameFormat = var).build());
 
-        text.addEntry(eb.startStrField(Component.literal("Claim Line Pattern"), config.text.claimLinePattern)
-                .setDefaultValue(Config.DEFAULT_CLAIM_LINE_PATTERN).setSaveConsumer(var -> config.text.claimLinePattern = var).build());
+        claimPoints.addEntry(eb.startStrField(Component.literal("ClaimPoint Name Pattern"), config.gpSettings.firstLinePattern)
+                .setDefaultValue(Config.DEFAULT_CLAIMPOINT_PATTERN).setSaveConsumer(var -> config.cpSettings.namePattern = var).build());
 
-        text.addEntry(eb.startStrList(Component.literal("Ignored Line Patterns"), config.text.ignoredLinePatterns)
-                .setDefaultValue(Config.DEFAULT_IGNORED_LINE_PATTERNS).setSaveConsumer(var -> config.text.ignoredLinePatterns = var).build());
 
-        text.addEntry(eb.startStrList(Component.literal("Ending Line Patterns"), config.text.endingLinePatterns)
-                .setDefaultValue(Config.DEFAULT_ENDING_LINE_PATTERNS).setSaveConsumer(var -> config.text.endingLinePatterns = var).build());
+        ConfigCategory griefPrevention = builder.getOrCreateCategory(Component.literal("GriefPrevention"));
+
+        griefPrevention.addEntry(eb.startStrField(Component.literal("First Line Pattern"), config.gpSettings.firstLinePattern)
+                .setDefaultValue(Config.DEFAULT_FIRST_LINE_PATTERN).setSaveConsumer(var -> config.gpSettings.firstLinePattern = var).build());
+
+        griefPrevention.addEntry(eb.startStrField(Component.literal("Claim Line Pattern"), config.gpSettings.claimLinePattern)
+                .setDefaultValue(Config.DEFAULT_CLAIM_LINE_PATTERN).setSaveConsumer(var -> config.gpSettings.claimLinePattern = var).build());
+
+        griefPrevention.addEntry(eb.startStrList(Component.literal("Ignored Line Patterns"), config.gpSettings.ignoredLinePatterns)
+                .setDefaultValue(Config.DEFAULT_IGNORED_LINE_PATTERNS).setSaveConsumer(var -> config.gpSettings.ignoredLinePatterns = var).build());
+
+        griefPrevention.addEntry(eb.startStrList(Component.literal("Ending Line Patterns"), config.gpSettings.endingLinePatterns)
+                .setDefaultValue(Config.DEFAULT_ENDING_LINE_PATTERNS).setSaveConsumer(var -> config.gpSettings.endingLinePatterns = var).build());
 
         return builder.build();
     }

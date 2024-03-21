@@ -28,6 +28,8 @@ public class Config {
             .setPrettyPrinting()
             .create();
 
+    public static final String DEFAULT_CLAIMPOINT_FORMAT = "Claim (%d)";
+    public static final String DEFAULT_CLAIMPOINT_PATTERN = "^Claim \\((\\d+)\\)$";
     public static final String DEFAULT_FIRST_LINE_PATTERN = "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total.$";
     public static final String DEFAULT_CLAIM_LINE_PATTERN = "^(.+): x(-?\\d+), z(-?\\d+) \\(-?(\\d+) blocks\\)$";
     public static final List<String> DEFAULT_IGNORED_LINE_PATTERNS = List.of(
@@ -39,9 +41,16 @@ public class Config {
 
     private static Path configPath;
 
-    public final TextSettings text = new TextSettings();
+    public final ClaimPointSettings cpSettings = new ClaimPointSettings();
+    public final GriefPreventionSettings gpSettings = new GriefPreventionSettings();
 
-    public static class TextSettings {
+    public static class ClaimPointSettings {
+        public String nameFormat = DEFAULT_CLAIMPOINT_FORMAT;
+        public String namePattern = DEFAULT_CLAIMPOINT_PATTERN;
+        public transient Pattern nameCompiled;
+    }
+
+    public static class GriefPreventionSettings {
         public String firstLinePattern = DEFAULT_FIRST_LINE_PATTERN;
         public transient Pattern firstLineCompiled;
         public String claimLinePattern = DEFAULT_CLAIM_LINE_PATTERN;
@@ -53,15 +62,16 @@ public class Config {
     }
 
     public void createPatterns() {
-        this.text.firstLineCompiled = Pattern.compile(text.firstLinePattern);
-        this.text.claimLineCompiled = Pattern.compile(text.claimLinePattern);
-        this.text.ignoredLinesCompiled = new ArrayList<>();
-        for (String str : this.text.ignoredLinePatterns) {
-            this.text.ignoredLinesCompiled.add(Pattern.compile(str));
+        this.cpSettings.nameCompiled = Pattern.compile(cpSettings.namePattern);
+        this.gpSettings.firstLineCompiled = Pattern.compile(gpSettings.firstLinePattern);
+        this.gpSettings.claimLineCompiled = Pattern.compile(gpSettings.claimLinePattern);
+        this.gpSettings.ignoredLinesCompiled = new ArrayList<>();
+        for (String str : this.gpSettings.ignoredLinePatterns) {
+            this.gpSettings.ignoredLinesCompiled.add(Pattern.compile(str));
         }
-        this.text.endingLinesCompiled = new ArrayList<>();
-        for (String str : this.text.endingLinePatterns) {
-            this.text.endingLinesCompiled.add(Pattern.compile(str));
+        this.gpSettings.endingLinesCompiled = new ArrayList<>();
+        for (String str : this.gpSettings.endingLinePatterns) {
+            this.gpSettings.endingLinesCompiled.add(Pattern.compile(str));
         }
     }
 
