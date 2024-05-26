@@ -2,6 +2,7 @@ package com.notryken.claimpoints.util;
 
 import com.mojang.datafixers.util.Pair;
 import com.notryken.claimpoints.ClaimPoints;
+import com.notryken.claimpoints.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -16,8 +17,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import static com.notryken.claimpoints.ClaimPoints.config;
 
 public class MsgScanner {
 
@@ -108,7 +107,7 @@ public class MsgScanner {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (config().gpSettings.firstLineCompiled.matcher(content).find()) {
+                if (Config.get().gpSettings.firstLineCompiled.matcher(content).find()) {
                     scanState = ScanState.READING;
                     return true;
                 }
@@ -118,22 +117,22 @@ public class MsgScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = config().gpSettings.claimLineCompiled.matcher(content);
+                Matcher clMatcher = Config.get().gpSettings.claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     worlds.add(clMatcher.group(1));
                     return true;
                 }
-                else if (anyMatches(content, config().gpSettings.ignoredLinesCompiled)) {
+                else if (anyMatches(content, Config.get().gpSettings.ignoredLinesCompiled)) {
                     return true;
                 }
                 else {
                     scanState = ScanState.ENDING;
                     handleWorlds();
-                    return anyMatches(content, config().gpSettings.endingLinesCompiled);
+                    return anyMatches(content, Config.get().gpSettings.endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, config().gpSettings.endingLinesCompiled)) {
+                if (anyMatches(content, Config.get().gpSettings.endingLinesCompiled)) {
                     return true;
                 }
                 else {
@@ -168,7 +167,7 @@ public class MsgScanner {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (config().gpSettings.firstLineCompiled.matcher(content).find()) {
+                if (Config.get().gpSettings.firstLineCompiled.matcher(content).find()) {
                     scanState = ScanState.READING;
                     return true;
                 }
@@ -178,7 +177,7 @@ public class MsgScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = config().gpSettings.claimLineCompiled.matcher(content);
+                Matcher clMatcher = Config.get().gpSettings.claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     if (clMatcher.group(1).equals(world)) {
                         int x = Integer.parseInt(clMatcher.group(2));
@@ -188,17 +187,17 @@ public class MsgScanner {
                     }
                     return true;
                 }
-                else if (anyMatches(content, config().gpSettings.ignoredLinesCompiled)) {
+                else if (anyMatches(content, Config.get().gpSettings.ignoredLinesCompiled)) {
                     return true;
                 }
                 else {
                     scanState = ScanState.ENDING;
                     handleClaims();
-                    return anyMatches(content, config().gpSettings.endingLinesCompiled);
+                    return anyMatches(content, Config.get().gpSettings.endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, config().gpSettings.endingLinesCompiled)) {
+                if (anyMatches(content, Config.get().gpSettings.endingLinesCompiled)) {
                     return true;
                 }
                 else {
@@ -275,7 +274,7 @@ public class MsgScanner {
             int[] totals = ClaimPoints.waypointManager.updateClaimPoints(claims);
             StringBuilder sb = new StringBuilder("Added ");
             sb.append(totals[0]);
-            sb.append(totals[0] == 1 ? " new  ClaimPoint" : " new ClaimPoints");
+            sb.append(totals[0] == 1 ? " new ClaimPoint" : " new ClaimPoints");
             sb.append(" from '");
             sb.append(world);
             sb.append("', updated ");

@@ -1,6 +1,5 @@
 package com.notryken.claimpoints.config;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.notryken.claimpoints.ClaimPoints;
@@ -8,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,55 +16,83 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Includes derivative work of code used by
- * <a href="https://github.com/CaffeineMC/sodium-fabric/">Sodium</a>
- */
 public class Config {
-    private static final String DEFAULT_FILE_NAME = "claimpoints.json";
-    private static final Gson GSON = new GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .setPrettyPrinting()
-            .create();
+    private static final Path DIR_PATH = Path.of("config");
+    private static final String FILE_NAME = ClaimPoints.MOD_ID + ".json";
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public static final String DEFAULT_CLAIMPOINT_FORMAT = "Claim (%d)";
-    public static final String DEFAULT_CLAIMPOINT_PATTERN = "^Claim \\((\\d+)\\)$";
-    public static final String DEFAULT_CLAIMPOINT_ALIAS = "CP";
-    public static final String DEFAULT_CLAIMPOINT_COLOR =
-            ClaimPoints.waypointColorNames.get(ClaimPoints.waypointColorNames.size() - 1);
-    public static final String DEFAULT_FIRST_LINE_PATTERN = "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total.$";
-    public static final String DEFAULT_CLAIM_LINE_PATTERN = "^(.+): x(-?\\d+), z(-?\\d+) \\(-?(\\d+) blocks\\)$";
-    public static final List<String> DEFAULT_IGNORED_LINE_PATTERNS = List.of(
-            "^Claims:$"
-    );
-    public static final List<String> DEFAULT_ENDING_LINE_PATTERNS = List.of(
-            "^ = -?\\d* blocks left to spend$"
-    );
-
-    private static Path configPath;
+    // Options
 
     public final ClaimPointSettings cpSettings = new ClaimPointSettings();
     public final GriefPreventionSettings gpSettings = new GriefPreventionSettings();
 
     public static class ClaimPointSettings {
-        public String nameFormat = DEFAULT_CLAIMPOINT_FORMAT;
-        public String namePattern = DEFAULT_CLAIMPOINT_PATTERN;
+        public static final String defaultNameFormat = "CP (%d)";
+        public String nameFormat = defaultNameFormat;
+
+        public static final String defaultNamePattern = "^CP \\((\\d+)\\)$";
+        public String namePattern = defaultNamePattern;
         public transient Pattern nameCompiled;
-        public String alias = DEFAULT_CLAIMPOINT_ALIAS;
-        public String color = DEFAULT_CLAIMPOINT_COLOR;
+
+        public static final String defaultAlias = "C";
+        public String alias = defaultAlias;
+
+        public static final String defaultColor = ClaimPoints.waypointColorNames.getLast();
+        public String color = defaultColor;
         public transient int colorIdx;
     }
 
     public static class GriefPreventionSettings {
-        public String firstLinePattern = DEFAULT_FIRST_LINE_PATTERN;
+        public static final String defaultFirstLinePattern =
+                "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total.$";
+        public String firstLinePattern = defaultFirstLinePattern;
         public transient Pattern firstLineCompiled;
-        public String claimLinePattern = DEFAULT_CLAIM_LINE_PATTERN;
+
+        public static final String defaultClaimLinePattern =
+                "^(.+): x(-?\\d+), z(-?\\d+) \\(-?(\\d+) blocks\\)$";
+        public String claimLinePattern = defaultClaimLinePattern;
         public transient Pattern claimLineCompiled;
-        public List<String> ignoredLinePatterns = new ArrayList<>(DEFAULT_IGNORED_LINE_PATTERNS);
+
+        public static final List<String> defaultIgnoredLinePatterns = List.of(
+                "^Claims:$"
+        );
+        public List<String> ignoredLinePatterns = new ArrayList<>(defaultIgnoredLinePatterns);
         public transient List<Pattern> ignoredLinesCompiled;
-        public List<String> endingLinePatterns = new ArrayList<>(DEFAULT_ENDING_LINE_PATTERNS);
+
+        public static final List<String> defaultEndingLinePatterns = List.of(
+                "^ = -?\\d* blocks left to spend$"
+        );
+        public List<String> endingLinePatterns = new ArrayList<>(defaultEndingLinePatterns);
         public transient List<Pattern> endingLinesCompiled;
     }
+
+
+    // Instance management
+
+    private static Config instance = null;
+
+    public static Config get() {
+        if (instance == null) {
+            instance = Config.load();
+            instance.verifyConfig();
+        }
+        return instance;
+    }
+
+    public static Config getAndSave() {
+        get().verifyConfig();
+        save();
+        return instance;
+    }
+
+    public static Config resetAndSave() {
+        instance = new Config();
+        instance.verifyConfig();
+        save();
+        return instance;
+    }
+
+    // Verification
 
     public void verifyConfig() {
         int indexOfSize = cpSettings.nameFormat.indexOf("%d");
@@ -96,69 +124,47 @@ public class Config {
         }
     }
 
+    // Load and save
+
     public static @NotNull Config load() {
-        Config config = load(DEFAULT_FILE_NAME);
-
-        if (config == null) {
-            ClaimPoints.LOG.info("Using default configuration.");
-            config = new Config();
-            config.verifyConfig();
-        }
-        else {
-            try {
-                config.verifyConfig();
-            }
-            catch (IllegalArgumentException e) {
-                ClaimPoints.LOG.warn("Invalid config.", e);
-                ClaimPoints.LOG.info("Using default configuration.");
-                config = new Config();
-                config.verifyConfig();
-            }
-        }
-
-        config.writeToFile();
-
-        return config;
-    }
-
-    public static @Nullable Config load(String name) {
-        configPath = Path.of("config").resolve(name);
+        Path file = DIR_PATH.resolve(FILE_NAME);
         Config config = null;
-
-        if (Files.exists(configPath)) {
-            try (FileReader reader = new FileReader(configPath.toFile())) {
-                config = GSON.fromJson(reader, Config.class);
-            } catch (Exception e) {
-                ClaimPoints.LOG.error("Unable to load config from file '{}'.", configPath, e);
-            }
-        } else {
-            ClaimPoints.LOG.warn("Unable to locate config file '{}'.", name);
+        if (Files.exists(file)) {
+            config = load(file, GSON);
+        }
+        if (config == null) {
+            config = new Config();
         }
         return config;
     }
 
-    public void writeToFile() {
-        Path dir = configPath.getParent();
-
-        try {
-            if (!Files.exists(dir)) {
-                Files.createDirectories(dir);
-            }
-            else if (!Files.isDirectory(dir)) {
-                throw new IOException("Not a directory: " + dir);
-            }
-
-            // Use a temporary location next to the config's final destination
-            Path tempPath = configPath.resolveSibling(configPath.getFileName() + ".tmp");
-
-            // Write the file to the temporary location
-            Files.writeString(tempPath, GSON.toJson(this));
-
-            // Atomically replace the old config file (if it exists) with the temporary file
-            Files.move(tempPath, configPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+    private static @Nullable Config load(Path file, Gson gson) {
+        try (FileReader reader = new FileReader(file.toFile())) {
+            return gson.fromJson(reader, Config.class);
+        } catch (Exception e) {
+            // Catch Exception as errors in deserialization may not fall under
+            // IOException or JsonParseException, but should not crash the game.
+            ClaimPoints.LOG.error("Unable to load config.", e);
+            return null;
         }
-        catch (IOException e) {
-            throw new RuntimeException("Unable to update config file.", e);
+    }
+
+    public static void save() {
+        try {
+            if (!Files.isDirectory(DIR_PATH)) Files.createDirectories(DIR_PATH);
+            Path file = DIR_PATH.resolve(FILE_NAME);
+            Path tempFile = file.resolveSibling(file.getFileName() + ".tmp");
+
+            try (FileWriter writer = new FileWriter(tempFile.toFile())) {
+                writer.write(GSON.toJson(instance));
+            } catch (IOException e) {
+                throw new IOException(e);
+            }
+            Files.move(tempFile, file, StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+            ClaimPoints.onConfigSaved(instance);
+        } catch (IOException e) {
+            ClaimPoints.LOG.error("Unable to save config.", e);
         }
     }
 }

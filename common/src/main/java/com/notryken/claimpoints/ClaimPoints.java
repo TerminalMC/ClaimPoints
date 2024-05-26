@@ -10,10 +10,12 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
+import static com.notryken.claimpoints.util.Localization.translationKey;
+
 public class ClaimPoints {
-    // Constants
     public static final String MOD_ID = "claimpoints";
     public static final String MOD_NAME = "ClaimPoints";
+    public static final String COMMAND_ALIAS = "cp";
     public static final ModLogger LOG = new ModLogger(MOD_NAME);
     public static final Component PREFIX = Component.empty()
             .append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY))
@@ -25,29 +27,17 @@ public class ClaimPoints {
     public static WaypointManager waypointManager = null;
     public static List<String> waypointColorNames = null;
 
-    private static Config CONFIG;
-
-    public static void init(WaypointManager pWaypointManager) {
-        waypointManager = pWaypointManager;
+    public static void init() {
+        waypointManager = new WaypointManager();
         waypointColorNames = waypointManager.getColorNames();
-
-        CONFIG = Config.load();
+        Config.getAndSave();
     }
 
-    public static Config config() {
-        if (CONFIG == null) {
-            throw new IllegalStateException("Config not yet available");
-        }
-        return CONFIG;
-    }
-
-    public static void restoreDefaultConfig() {
-        CONFIG = new Config();
-        CONFIG.verifyConfig();
-        CONFIG.writeToFile();
-    }
-
-    public static void onEndTick(Minecraft minecraft) {
+    public static void onEndTick(Minecraft mc) {
         MsgScanner.checkStop();
+    }
+
+    public static void onConfigSaved(Config config) {
+        // If you are maintaining caches based on config values, update them here.
     }
 }

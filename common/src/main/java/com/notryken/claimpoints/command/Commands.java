@@ -3,25 +3,27 @@ package com.notryken.claimpoints.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.notryken.claimpoints.ClaimPoints;
+import com.notryken.claimpoints.config.Config;
 import com.notryken.claimpoints.util.MsgScanner;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import java.util.regex.Pattern;
 
-import static com.notryken.claimpoints.ClaimPoints.config;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
-public class Commands {
-    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-        dispatcher.register(literal("cp")
+@SuppressWarnings("unchecked")
+public class Commands<S> extends CommandDispatcher<S> {
+    public void register(Minecraft mc, CommandDispatcher<S> dispatcher, CommandBuildContext buildContext) {
+        dispatcher.register((LiteralArgumentBuilder<S>)literal(ClaimPoints.COMMAND_ALIAS)
                 .then(literal("help")
                         .executes(ctx -> showHelp()))
                 .then(literal("waypoints")
@@ -56,6 +58,112 @@ public class Commands {
                         .then(argument("world name", StringArgumentType.greedyString())
                                 .suggests(((context, builder) -> SharedSuggestionProvider.suggest(MsgScanner.getWorlds(), builder)))
                                 .executes(ctx -> updateFrom(StringArgumentType.getString(ctx, "world name"))))));
+    }
+
+    private static int showClaimPoints() {
+        ClaimPoints.waypointManager.showClaimPoints();
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int hideClaimPoints() {
+        ClaimPoints.waypointManager.hideClaimPoints();
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int clearClaimPoints() {
+        int removed = ClaimPoints.waypointManager.clearClaimPoints();
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        msg.append("Removed all ClaimPoints (" + removed + ").");
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setNameFormat(String nameFormat) {
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        int indexOfSize = nameFormat.indexOf("%d");
+        if (indexOfSize != -1) {
+            ClaimPoints.waypointManager.setClaimPointNameFormat(nameFormat);
+            Config.get().cpSettings.nameFormat = nameFormat;
+            Config.get().cpSettings.namePattern = "^" + Pattern.quote(nameFormat.substring(0, indexOfSize)) +
+                    "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
+            Config.get().cpSettings.nameCompiled = Pattern.compile(Config.get().cpSettings.namePattern);
+            Config.save();
+            msg.append("Set ClaimPoint name format to '" + nameFormat + "'.");
+        }
+        else {
+            msg.append("'" + nameFormat + "' is not a valid name format. Requires %d for claim size.");
+        }
+
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setAlias(String alias) {
+        alias = alias.length() <= 2 ? alias : alias.substring(0, 2);
+        ClaimPoints.waypointManager.setClaimPointAlias(alias);
+        Config.get().cpSettings.alias = alias;
+        Config.save();
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        msg.append("Set alias of all ClaimPoints to " + alias);
+
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setColor(String color) {
+        MutableComponent msg = ClaimPoints.PREFIX.copy();
+        int index = ClaimPoints.waypointColorNames.indexOf(color);
+        if (index == -1) {
+            msg.append("'" + color + "' is not a valid color ID.");
+        }
+        else {
+            ClaimPoints.waypointManager.setClaimPointColor(index);
+            Config.get().cpSettings.color = color;
+            Config.get().cpSettings.colorIdx = index;
+            Config.save();
+            msg.append("Set color of all ClaimPoints to " + color);
+        }
+
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(msg);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getWorlds() {
+        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        if (connection != null) {
+            connection.sendCommand("claimlist");
+            MsgScanner.startWorldScan();
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int addFrom(String world) {
+        return scanFrom(world, MsgScanner.ScanType.ADD);
+    }
+
+    private static int cleanFrom(String world) {
+        return scanFrom(world, MsgScanner.ScanType.CLEAN);
+    }
+
+    private static int updateFrom(String world) {
+        return scanFrom(world, MsgScanner.ScanType.UPDATE);
+    }
+
+    private static int scanFrom(String world, MsgScanner.ScanType scanType) {
+        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        if (connection != null) {
+            connection.sendCommand("claimlist");
+            MsgScanner.startClaimScan(world, scanType);
+        }
+        return Command.SINGLE_SUCCESS;
     }
 
     private static int showHelp() {
@@ -113,111 +221,6 @@ public class Commands {
         msg.append("===============================================\n");
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int showClaimPoints() {
-        ClaimPoints.waypointManager.showClaimPoints();
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int hideClaimPoints() {
-        ClaimPoints.waypointManager.hideClaimPoints();
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int clearClaimPoints() {
-        int removed = ClaimPoints.waypointManager.clearClaimPoints();
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
-        msg.append("Removed all ClaimPoints (" + removed + ").");
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setNameFormat(String nameFormat) {
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
-        int indexOfSize = nameFormat.indexOf("%d");
-        if (indexOfSize != -1) {
-            ClaimPoints.waypointManager.setClaimPointNameFormat(nameFormat);
-            config().cpSettings.nameFormat = nameFormat;
-            config().cpSettings.namePattern = "^" + Pattern.quote(nameFormat.substring(0, indexOfSize)) +
-                    "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
-            config().cpSettings.nameCompiled = Pattern.compile(config().cpSettings.namePattern);
-            config().writeToFile();
-            msg.append("Set ClaimPoint name format to '" + nameFormat + "'.");
-        }
-        else {
-            msg.append("'" + nameFormat + "' is not a valid name format. Requires %d for claim size.");
-        }
-
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setAlias(String alias) {
-        alias = alias.length() <= 2 ? alias : alias.substring(0, 2);
-        ClaimPoints.waypointManager.setClaimPointAlias(alias);
-        config().cpSettings.alias = alias;
-        config().writeToFile();
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
-        msg.append("Set alias of all ClaimPoints to " + alias);
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setColor(String color) {
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
-        int index = ClaimPoints.waypointColorNames.indexOf(color);
-        if (index == -1) {
-            msg.append("'" + color + "' is not a valid color ID.");
-        }
-        else {
-            ClaimPoints.waypointManager.setClaimPointColor(index);
-            config().cpSettings.color = color;
-            config().cpSettings.colorIdx = index;
-            config().writeToFile();
-            msg.append("Set color of all ClaimPoints to " + color);
-        }
-
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getWorlds() {
-        ClientPacketListener connection = Minecraft.getInstance().getConnection();
-        if (connection != null) {
-            connection.sendCommand("claimlist");
-            MsgScanner.startWorldScan();
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int addFrom(String world) {
-        return scanFrom(world, MsgScanner.ScanType.ADD);
-    }
-
-    private static int cleanFrom(String world) {
-        return scanFrom(world, MsgScanner.ScanType.CLEAN);
-    }
-
-    private static int updateFrom(String world) {
-        return scanFrom(world, MsgScanner.ScanType.UPDATE);
-    }
-
-    private static int scanFrom(String world, MsgScanner.ScanType scanType) {
-        ClientPacketListener connection = Minecraft.getInstance().getConnection();
-        if (connection != null) {
-            connection.sendCommand("claimlist");
-            MsgScanner.startClaimScan(world, scanType);
         }
         return Command.SINGLE_SUCCESS;
     }
