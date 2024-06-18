@@ -28,7 +28,7 @@ claims using waypoints.
 
 Fabric: 
 - [Xaero's Minimap](https://modrinth.com/mod/1bokaNcj) (required)
-- [Fabric API](https://modrinth.com/mod/P7dR8mSH) (required), 
+- [Fabric API](https://modrinth.com/mod/P7dR8mSH) (required)
 - [ModMenu](https://modrinth.com/mod/mOgUt4GM) (required for configuration)
 - [Cloth Config API](https://modrinth.com/mod/9s6osm5g) (required for configuration)
 
