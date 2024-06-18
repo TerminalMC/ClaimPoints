@@ -43,6 +43,9 @@ public class Config {
     }
 
     public static class GriefPreventionSettings {
+        public static final String defaultClaimListCommand = "claimlist";
+        public String claimListCommand = defaultClaimListCommand;
+
         public static final String defaultFirstLinePattern =
                 "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total.$";
         public String firstLinePattern = defaultFirstLinePattern;

@@ -147,8 +147,9 @@ public class MsgScanner {
     private static void handleWorlds() {
         MutableComponent msg = ClaimPoints.PREFIX.copy();
         if (worlds.isEmpty()) {
-            msg.append(Component.literal("No worlds found using /claimlist. " +
-                    "That might be the wrong command, or you might not have any claims."));
+            msg.append(Component.literal("No worlds found using /'" +
+                    Config.get().gpSettings.claimListCommand +
+                    "'. That might be the wrong command, or you might not have any claims."));
         }
         else {
             StringBuilder sb = new StringBuilder("Claim worlds (" + worlds.size() + "):");

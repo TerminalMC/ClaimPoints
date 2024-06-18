@@ -139,7 +139,7 @@ public class Commands<S> extends CommandDispatcher<S> {
     private static int getWorlds() {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            connection.sendCommand("claimlist");
+            connection.sendCommand(Config.get().gpSettings.claimListCommand);
             MsgScanner.startWorldScan();
         }
         return Command.SINGLE_SUCCESS;
@@ -160,7 +160,7 @@ public class Commands<S> extends CommandDispatcher<S> {
     private static int scanFrom(String world, MsgScanner.ScanType scanType) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            connection.sendCommand("claimlist");
+            connection.sendCommand(Config.get().gpSettings.claimListCommand);
             MsgScanner.startClaimScan(world, scanType);
         }
         return Command.SINGLE_SUCCESS;
