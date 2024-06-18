@@ -62,26 +62,23 @@ public class Commands<S> extends CommandDispatcher<S> {
 
     private static int showClaimPoints() {
         ClaimPoints.waypointManager.showClaimPoints();
+        sendWithPrefix("Enabled all ClaimPoints");
         return Command.SINGLE_SUCCESS;
     }
 
     private static int hideClaimPoints() {
         ClaimPoints.waypointManager.hideClaimPoints();
+        sendWithPrefix("Disabled all ClaimPoints");
         return Command.SINGLE_SUCCESS;
     }
 
     private static int clearClaimPoints() {
         int removed = ClaimPoints.waypointManager.clearClaimPoints();
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
-        msg.append("Removed all ClaimPoints (" + removed + ").");
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
+        sendWithPrefix("Removed all ClaimPoints (" + removed + ").");
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setNameFormat(String nameFormat) {
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
         int indexOfSize = nameFormat.indexOf("%d");
         if (indexOfSize != -1) {
             ClaimPoints.waypointManager.setClaimPointNameFormat(nameFormat);
@@ -90,15 +87,12 @@ public class Commands<S> extends CommandDispatcher<S> {
                     "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
             Config.get().cpSettings.nameCompiled = Pattern.compile(Config.get().cpSettings.namePattern);
             Config.save();
-            msg.append("Set ClaimPoint name format to '" + nameFormat + "'.");
+            sendWithPrefix("Set ClaimPoint name format to '" + nameFormat + "'.");
         }
         else {
-            msg.append("'" + nameFormat + "' is not a valid name format. Requires %d for claim size.");
+            sendWithPrefix("'" + nameFormat + "' is not a valid name format. Requires %d for claim size.");
         }
 
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
         return Command.SINGLE_SUCCESS;
     }
 
@@ -107,39 +101,31 @@ public class Commands<S> extends CommandDispatcher<S> {
         ClaimPoints.waypointManager.setClaimPointAlias(alias);
         Config.get().cpSettings.alias = alias;
         Config.save();
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
-        msg.append("Set alias of all ClaimPoints to " + alias);
 
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
+        sendWithPrefix("Set alias of all ClaimPoints to " + alias);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setColor(String color) {
-        MutableComponent msg = ClaimPoints.PREFIX.copy();
         int index = ClaimPoints.waypointColorNames.indexOf(color);
         if (index == -1) {
-            msg.append("'" + color + "' is not a valid color ID.");
+            sendWithPrefix("'" + color + "' is not a valid color ID.");
         }
         else {
             ClaimPoints.waypointManager.setClaimPointColor(index);
             Config.get().cpSettings.color = color;
             Config.get().cpSettings.colorIdx = index;
             Config.save();
-            msg.append("Set color of all ClaimPoints to " + color);
+            sendWithPrefix("Set color of all ClaimPoints to " + color);
         }
 
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getWorlds() {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            connection.sendCommand("claimlist");
+            connection.sendCommand(Config.get().gpSettings.claimListCommand);
             ChatScanner.startWorldScan();
         }
         return Command.SINGLE_SUCCESS;
@@ -219,9 +205,19 @@ public class Commands<S> extends CommandDispatcher<S> {
         msg.append(Component.literal("Sets the color of all ClaimPoints to the specified value.\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("===============================================\n");
-        if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendSystemMessage(msg);
-        }
+        send(msg);
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static void sendWithPrefix(String content) {
+        MutableComponent message = ClaimPoints.PREFIX.copy();
+        message.append(content);
+        send(message);
+    }
+
+    private static void send(Component message) {
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.sendSystemMessage(message);
+        }
     }
 }

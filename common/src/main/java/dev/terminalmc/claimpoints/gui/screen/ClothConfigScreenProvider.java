@@ -58,6 +58,11 @@ public class ClothConfigScreenProvider {
 
         ConfigCategory gp = builder.getOrCreateCategory(Component.literal("GriefPrevention"));
 
+        gp.addEntry(eb.startStrField(Component.literal("Claim List Command"), config.gpSettings.claimListCommand)
+                .setDefaultValue(Config.GriefPreventionSettings.defaultClaimListCommand)
+                .setSaveConsumer(var -> config.gpSettings.claimListCommand = var)
+                .build());
+
         gp.addEntry(eb.startStrField(Component.literal("First Line Pattern"), config.gpSettings.firstLinePattern)
                 .setDefaultValue(Config.GriefPreventionSettings.defaultFirstLinePattern)
                 .setSaveConsumer(var -> config.gpSettings.firstLinePattern = var)
