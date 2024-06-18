@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.terminalmc.claimpoints.ClaimPoints;
 import dev.terminalmc.claimpoints.config.Config;
-import dev.terminalmc.claimpoints.util.ChatScanner;
+import dev.terminalmc.claimpoints.chat.ChatScanner;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -61,20 +61,20 @@ public class Commands<S> extends CommandDispatcher<S> {
     }
 
     private static int showClaimPoints() {
-        ClaimPoints.waypointManager.showClaimPoints();
-        sendWithPrefix("Enabled all ClaimPoints");
+        int total = ClaimPoints.waypointManager.showClaimPoints();
+        sendWithPrefix("Enabled " + total + " ClaimPoints");
         return Command.SINGLE_SUCCESS;
     }
 
     private static int hideClaimPoints() {
-        ClaimPoints.waypointManager.hideClaimPoints();
-        sendWithPrefix("Disabled all ClaimPoints");
+        int total = ClaimPoints.waypointManager.hideClaimPoints();
+        sendWithPrefix("Disabled " + total + " ClaimPoints");
         return Command.SINGLE_SUCCESS;
     }
 
     private static int clearClaimPoints() {
         int removed = ClaimPoints.waypointManager.clearClaimPoints();
-        sendWithPrefix("Removed all ClaimPoints (" + removed + ").");
+        sendWithPrefix("Removed all ClaimPoints (" + removed + ")");
         return Command.SINGLE_SUCCESS;
     }
 
@@ -87,7 +87,7 @@ public class Commands<S> extends CommandDispatcher<S> {
                     "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
             Config.get().cpSettings.nameCompiled = Pattern.compile(Config.get().cpSettings.namePattern);
             Config.save();
-            sendWithPrefix("Set ClaimPoint name format to '" + nameFormat + "'.");
+            sendWithPrefix("Set ClaimPoint name format to '" + nameFormat + "'");
         }
         else {
             sendWithPrefix("'" + nameFormat + "' is not a valid name format. Requires %d for claim size.");
@@ -109,7 +109,7 @@ public class Commands<S> extends CommandDispatcher<S> {
     private static int setColor(String color) {
         int index = ClaimPoints.waypointColorNames.indexOf(color);
         if (index == -1) {
-            sendWithPrefix("'" + color + "' is not a valid color ID.");
+            sendWithPrefix("'" + color + "' is not a valid color ID");
         }
         else {
             ClaimPoints.waypointManager.setClaimPointColor(index);
@@ -132,21 +132,21 @@ public class Commands<S> extends CommandDispatcher<S> {
     }
 
     private static int addFrom(String world) {
-        return scanFrom(world, ChatScanner.ScanType.ADD);
+        return scanFrom(world, ChatScanner.ClaimScanType.ADD);
     }
 
     private static int cleanFrom(String world) {
-        return scanFrom(world, ChatScanner.ScanType.CLEAN);
+        return scanFrom(world, ChatScanner.ClaimScanType.CLEAN);
     }
 
     private static int updateFrom(String world) {
-        return scanFrom(world, ChatScanner.ScanType.UPDATE);
+        return scanFrom(world, ChatScanner.ClaimScanType.UPDATE);
     }
 
-    private static int scanFrom(String world, ChatScanner.ScanType scanType) {
+    private static int scanFrom(String world, ChatScanner.ClaimScanType scanType) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            connection.sendCommand("claimlist");
+            connection.sendCommand(Config.get().gpSettings.claimListCommand);
             ChatScanner.startClaimScan(world, scanType);
         }
         return Command.SINGLE_SUCCESS;
@@ -209,7 +209,13 @@ public class Commands<S> extends CommandDispatcher<S> {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static void sendWithPrefix(String content) {
+    public static void sendWithPrefix(String content) {
+        MutableComponent message = ClaimPoints.PREFIX.copy();
+        message.append(content);
+        send(message);
+    }
+
+    public static void sendWithPrefix(Component content) {
         MutableComponent message = ClaimPoints.PREFIX.copy();
         message.append(content);
         send(message);

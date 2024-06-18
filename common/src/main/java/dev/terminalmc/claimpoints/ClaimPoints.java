@@ -2,15 +2,13 @@ package dev.terminalmc.claimpoints;
 
 import dev.terminalmc.claimpoints.config.Config;
 import dev.terminalmc.claimpoints.util.ModLogger;
-import dev.terminalmc.claimpoints.util.ChatScanner;
-import dev.terminalmc.claimpoints.util.WaypointManager;
+import dev.terminalmc.claimpoints.chat.ChatScanner;
+import dev.terminalmc.claimpoints.xaero.WaypointManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
-
-import static dev.terminalmc.claimpoints.util.Localization.translationKey;
 
 public class ClaimPoints {
     public static final String MOD_ID = "claimpoints";

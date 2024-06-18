@@ -1,4 +1,4 @@
-package dev.terminalmc.claimpoints.util;
+package dev.terminalmc.claimpoints.xaero;
 
 import com.mojang.datafixers.util.Pair;
 import dev.terminalmc.claimpoints.ClaimPoints;
@@ -36,12 +36,15 @@ public class WaypointManager {
     public void saveWaypoints(XaeroMinimapSession session, WaypointWorld wpWorld) {
         try {
             session.getModMain().getSettings().saveWaypoints(wpWorld);
-        }
-        catch (IOException e) {
-            ClaimPoints.LOG.error("ClaimPoints: Unable to save waypoints.", e);
+        } catch (IOException e) {
+            ClaimPoints.LOG.error("Unable to save waypoints.", e);
         }
     }
 
+    /**
+     * @return true if any waypoint in the list matches the coordinates and the
+     * pattern.
+     */
     private boolean anyWpMatches(int x, int z, Pattern namePattern, List<Waypoint> wpList) {
         for (Waypoint wp : wpList) {
             if (wp.getX() == x && wp.getZ() == z && namePattern.matcher(wp.getName()).find()) {
@@ -51,6 +54,10 @@ public class WaypointManager {
         return false;
     }
 
+    /**
+     * @return true if any claim Vec2 in the list matches the coordinates of the
+     * waypoint.
+     */
     private boolean anyClaimMatches(Waypoint wp, List<Pair<Vec2,Integer>> claims) {
         for (Pair<Vec2,Integer> claim : claims) {
             if (claim.getFirst().x == wp.getX() && claim.getFirst().y == wp.getZ()) {
@@ -60,6 +67,11 @@ public class WaypointManager {
         return false;
     }
 
+    /**
+     * Adds all the claims as waypoints, excluding those for which there is
+     * already a waypoint with matching coordinates.
+     * @return the number of waypoints added.
+     */
     public int addClaimPoints(List<Pair<Vec2,Integer>> claims) {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -80,6 +92,11 @@ public class WaypointManager {
         return added;
     }
 
+    /**
+     * Removes all waypoints matching the claim-waypoint name pattern, which
+     * do not have corresponding claims in the specified list.
+     * @return the number of waypoints removed.
+     */
     public int cleanClaimPoints(List<Pair<Vec2,Integer>> claims) {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -101,6 +118,13 @@ public class WaypointManager {
         return removed;
     }
 
+    /**
+     * For each waypoint matching the claim-waypoint name pattern, if it has
+     * a corresponding claim in the specified list, updates the claim size. If
+     * it does not have a corresponding claim, deletes it. Finally, adds new
+     * waypoints for all claims without existing waypoints.
+     * @return the number of waypoints [added, updated, removed]
+     */
     public int[] updateClaimPoints(List<Pair<Vec2,Integer>> claims) {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -161,6 +185,10 @@ public class WaypointManager {
         return Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find() ? 2 : 0;
     }
 
+    /**
+     * Enables all waypoints matching the claim-waypoint name pattern.
+     * @return the number of waypoints enabled.
+     */
     public int showClaimPoints() {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -177,6 +205,10 @@ public class WaypointManager {
         return shown;
     }
 
+    /**
+     * Disables all waypoints matching the claim-waypoint name pattern.
+     * @return the number of waypoints disabled.
+     */
     public int hideClaimPoints() {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -193,6 +225,10 @@ public class WaypointManager {
         return hidden;
     }
 
+    /**
+     * Deletes all waypoints matching the claim-waypoint name pattern.
+     * @return the number of waypoints deleted.
+     */
     public int clearClaimPoints() {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -212,6 +248,10 @@ public class WaypointManager {
         return removed;
     }
 
+    /**
+     * For each waypoint matching the claim-waypoint name pattern, changes the
+     * name to the specified format.
+     */
     public void setClaimPointNameFormat(String nameFormat) {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -227,6 +267,10 @@ public class WaypointManager {
         saveWaypoints(session, wpWorld);
     }
 
+    /**
+     * For each waypoint matching the claim-waypoint name pattern, changes the
+     * alias to the specified value.
+     */
     public void setClaimPointAlias(String alias) {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);
@@ -241,6 +285,10 @@ public class WaypointManager {
         saveWaypoints(session, wpWorld);
     }
 
+    /**
+     * For each waypoint matching the claim-waypoint name pattern, changes the
+     * color to the specified value.
+     */
     public void setClaimPointColor(int colorIdx) {
         XaeroMinimapSession session = getSession();
         WaypointWorld wpWorld = getWpWorld(session);

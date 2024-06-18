@@ -6,6 +6,10 @@ import me.shedaniel.clothconfig2.api.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.util.Optional;
+
+import static dev.terminalmc.claimpoints.util.Localization.localized;
+
 public class ClothConfigScreenProvider {
     /**
      * Builds and returns a Cloth Config options screen.
@@ -33,21 +37,28 @@ public class ClothConfigScreenProvider {
 
         ConfigEntryBuilder eb = builder.entryBuilder();
 
-        ConfigCategory cp = builder.getOrCreateCategory(Component.literal("ClaimPoints"));
+        ConfigCategory cp = builder.getOrCreateCategory(localized(
+                "option", "waypoints"));
 
-        cp.addEntry(eb.startStrField(Component.literal(
-                                "ClaimPoint Name Format (must contain %d for claim size)"),
-                        config.cpSettings.nameFormat)
+        cp.addEntry(eb.startStrField(localized("option", "name_format"), config.cpSettings.nameFormat)
                 .setDefaultValue(Config.ClaimPointSettings.defaultNameFormat)
+                .setErrorSupplier(val -> {
+                    if (val.contains("%d")) return Optional.empty();
+                    else return Optional.of(localized("option", "name_format.error"));
+                })
                 .setSaveConsumer(var -> config.cpSettings.nameFormat = var)
                 .build());
 
-        cp.addEntry(eb.startStrField(Component.literal("ClaimPoint Alias"), config.cpSettings.alias)
+        cp.addEntry(eb.startStrField(localized("option", "alias"), config.cpSettings.alias)
                 .setDefaultValue(Config.ClaimPointSettings.defaultAlias)
-                .setSaveConsumer(var -> config.cpSettings.alias = var.length() <= 2 ? var : var.substring(0, 2))
+                .setErrorSupplier(val -> {
+                    if (!val.isEmpty() && val.length() < 3) return Optional.empty();
+                    else return Optional.of(localized("option", "alias.error"));
+                })
+                .setSaveConsumer(var -> config.cpSettings.alias = var)
                 .build());
 
-        cp.addEntry(eb.startDropdownMenu(Component.literal("ClaimPoint Color"),
+        cp.addEntry(eb.startDropdownMenu(localized("option", "color"),
                         config.cpSettings.color, String::valueOf)
                 .setSuggestionMode(false)
                 .setSelections(ClaimPoints.waypointColorNames)
@@ -56,29 +67,35 @@ public class ClothConfigScreenProvider {
                 .build());
 
 
-        ConfigCategory gp = builder.getOrCreateCategory(Component.literal("GriefPrevention"));
+        ConfigCategory gp = builder.getOrCreateCategory(localized(
+                "option", "griefprevention"));
 
-        gp.addEntry(eb.startStrField(Component.literal("Claim List Command"), config.gpSettings.claimListCommand)
+        gp.addEntry(eb.startStrField(localized("option", "command"),
+                        config.gpSettings.claimListCommand)
                 .setDefaultValue(Config.GriefPreventionSettings.defaultClaimListCommand)
                 .setSaveConsumer(var -> config.gpSettings.claimListCommand = var)
                 .build());
 
-        gp.addEntry(eb.startStrField(Component.literal("First Line Pattern"), config.gpSettings.firstLinePattern)
+        gp.addEntry(eb.startStrField(localized("option", "first_pattern"),
+                        config.gpSettings.firstLinePattern)
                 .setDefaultValue(Config.GriefPreventionSettings.defaultFirstLinePattern)
                 .setSaveConsumer(var -> config.gpSettings.firstLinePattern = var)
                 .build());
 
-        gp.addEntry(eb.startStrField(Component.literal("Claim Line Pattern"), config.gpSettings.claimLinePattern)
+        gp.addEntry(eb.startStrField(localized("option", "claim_pattern"),
+                        config.gpSettings.claimLinePattern)
                 .setDefaultValue(Config.GriefPreventionSettings.defaultClaimLinePattern)
                 .setSaveConsumer(var -> config.gpSettings.claimLinePattern = var)
                 .build());
 
-        gp.addEntry(eb.startStrList(Component.literal("Ignored Line Patterns"), config.gpSettings.ignoredLinePatterns)
+        gp.addEntry(eb.startStrList(localized("option", "ignored_pattern"),
+                        config.gpSettings.ignoredLinePatterns)
                 .setDefaultValue(Config.GriefPreventionSettings.defaultIgnoredLinePatterns)
                 .setSaveConsumer(var -> config.gpSettings.ignoredLinePatterns = var)
                 .build());
 
-        gp.addEntry(eb.startStrList(Component.literal("Ending Line Patterns"), config.gpSettings.endingLinePatterns)
+        gp.addEntry(eb.startStrList(localized("option", "ending_pattern"),
+                        config.gpSettings.endingLinePatterns)
                 .setDefaultValue(Config.GriefPreventionSettings.defaultEndingLinePatterns)
                 .setSaveConsumer(var -> config.gpSettings.endingLinePatterns = var)
                 .build());

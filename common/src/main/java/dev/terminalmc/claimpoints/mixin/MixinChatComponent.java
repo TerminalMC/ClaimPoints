@@ -1,6 +1,6 @@
 package dev.terminalmc.claimpoints.mixin;
 
-import dev.terminalmc.claimpoints.util.ChatScanner;
+import dev.terminalmc.claimpoints.chat.ChatScanner;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
