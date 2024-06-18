@@ -1,16 +1,16 @@
-package com.notryken.claimpoints;
+package dev.terminalmc.claimpoints;
 
-import com.notryken.claimpoints.config.Config;
-import com.notryken.claimpoints.util.ModLogger;
-import com.notryken.claimpoints.util.MsgScanner;
-import com.notryken.claimpoints.util.WaypointManager;
+import dev.terminalmc.claimpoints.config.Config;
+import dev.terminalmc.claimpoints.util.ModLogger;
+import dev.terminalmc.claimpoints.util.ChatScanner;
+import dev.terminalmc.claimpoints.util.WaypointManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-import static com.notryken.claimpoints.util.Localization.translationKey;
+import static dev.terminalmc.claimpoints.util.Localization.translationKey;
 
 public class ClaimPoints {
     public static final String MOD_ID = "claimpoints";
@@ -34,7 +34,7 @@ public class ClaimPoints {
     }
 
     public static void onEndTick(Minecraft mc) {
-        MsgScanner.checkStop();
+        ChatScanner.checkStop();
     }
 
     public static void onConfigSaved(Config config) {

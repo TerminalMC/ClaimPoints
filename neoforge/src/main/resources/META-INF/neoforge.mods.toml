@@ -41,10 +41,9 @@ issueTrackerURL="${issues_url}" #optional:none
   side="CLIENT"
 
 [[dependencies."${mod_id}"]]
-modId="xaerominimap"
-type="required"
-versionRange="${minimap_versions_neoforge}"
-side="CLIENT"
+  modId="xaerominimap"
+  versionRange="${xm_versions_neoforge}"
+  side="CLIENT"
 
 [[dependencies."${mod_id}"]]
   modId="cloth_config"

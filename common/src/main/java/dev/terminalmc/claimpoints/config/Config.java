@@ -1,8 +1,8 @@
-package com.notryken.claimpoints.config;
+package dev.terminalmc.claimpoints.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.notryken.claimpoints.ClaimPoints;
+import dev.terminalmc.claimpoints.ClaimPoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +44,7 @@ public class Config {
 
     public static class GriefPreventionSettings {
         public static final String defaultFirstLinePattern =
-                "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total.$";
+                "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total\\.$";
         public String firstLinePattern = defaultFirstLinePattern;
         public transient Pattern firstLineCompiled;
 
@@ -66,35 +66,9 @@ public class Config {
         public transient List<Pattern> endingLinesCompiled;
     }
 
-
-    // Instance management
-
-    private static Config instance = null;
-
-    public static Config get() {
-        if (instance == null) {
-            instance = Config.load();
-            instance.verifyConfig();
-        }
-        return instance;
-    }
-
-    public static Config getAndSave() {
-        get().verifyConfig();
-        save();
-        return instance;
-    }
-
-    public static Config resetAndSave() {
-        instance = new Config();
-        instance.verifyConfig();
-        save();
-        return instance;
-    }
-
     // Verification
 
-    public void verifyConfig() {
+    public void verify() {
         int indexOfSize = cpSettings.nameFormat.indexOf("%d");
         if (indexOfSize == -1) {
             throw new IllegalArgumentException("Name format '" + cpSettings.nameFormat +
@@ -124,6 +98,31 @@ public class Config {
         }
     }
 
+    // Instance management
+
+    private static Config instance = null;
+
+    public static Config get() {
+        if (instance == null) {
+            instance = Config.load();
+            instance.verify();
+        }
+        return instance;
+    }
+
+    public static Config getAndSave() {
+        get().verify();
+        save();
+        return instance;
+    }
+
+    public static Config resetAndSave() {
+        instance = new Config();
+        instance.verify();
+        save();
+        return instance;
+    }
+
     // Load and save
 
     public static @NotNull Config load() {
@@ -150,6 +149,7 @@ public class Config {
     }
 
     public static void save() {
+        if (instance == null) return;
         try {
             if (!Files.isDirectory(DIR_PATH)) Files.createDirectories(DIR_PATH);
             Path file = DIR_PATH.resolve(FILE_NAME);

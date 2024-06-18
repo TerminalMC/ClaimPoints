@@ -1,8 +1,8 @@
-package com.notryken.claimpoints.util;
+package dev.terminalmc.claimpoints.util;
 
 import com.mojang.datafixers.util.Pair;
-import com.notryken.claimpoints.ClaimPoints;
-import com.notryken.claimpoints.config.Config;
+import dev.terminalmc.claimpoints.ClaimPoints;
+import dev.terminalmc.claimpoints.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class MsgScanner {
+public class ChatScanner {
 
     public enum ScanType {
         ADD,
@@ -53,8 +53,11 @@ public class MsgScanner {
     public static void checkStop() {
         if (scanning && System.currentTimeMillis() > stopTime) {
             stopScan();
-            if (worldScan) handleWorlds();
-            else handleClaims();
+            if (worldScan) {
+                handleWorlds();
+            } else {
+                handleClaims();
+            }
         }
     }
 

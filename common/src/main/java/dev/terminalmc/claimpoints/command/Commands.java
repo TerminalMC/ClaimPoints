@@ -1,12 +1,12 @@
-package com.notryken.claimpoints.command;
+package dev.terminalmc.claimpoints.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.notryken.claimpoints.ClaimPoints;
-import com.notryken.claimpoints.config.Config;
-import com.notryken.claimpoints.util.MsgScanner;
+import dev.terminalmc.claimpoints.ClaimPoints;
+import dev.terminalmc.claimpoints.config.Config;
+import dev.terminalmc.claimpoints.util.ChatScanner;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -48,15 +48,15 @@ public class Commands<S> extends CommandDispatcher<S> {
                         .executes(ctx -> getWorlds()))
                 .then(literal("add")
                         .then(argument("world name", StringArgumentType.greedyString())
-                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(MsgScanner.getWorlds(), builder)))
+                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ChatScanner.getWorlds(), builder)))
                                 .executes(ctx -> addFrom(StringArgumentType.getString(ctx, "world name")))))
                 .then(literal("clean")
                         .then(argument("world name", StringArgumentType.greedyString())
-                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(MsgScanner.getWorlds(), builder)))
+                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ChatScanner.getWorlds(), builder)))
                                 .executes(ctx -> cleanFrom(StringArgumentType.getString(ctx, "world name")))))
                 .then(literal("update")
                         .then(argument("world name", StringArgumentType.greedyString())
-                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(MsgScanner.getWorlds(), builder)))
+                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ChatScanner.getWorlds(), builder)))
                                 .executes(ctx -> updateFrom(StringArgumentType.getString(ctx, "world name"))))));
     }
 
@@ -140,28 +140,28 @@ public class Commands<S> extends CommandDispatcher<S> {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
             connection.sendCommand("claimlist");
-            MsgScanner.startWorldScan();
+            ChatScanner.startWorldScan();
         }
         return Command.SINGLE_SUCCESS;
     }
 
     private static int addFrom(String world) {
-        return scanFrom(world, MsgScanner.ScanType.ADD);
+        return scanFrom(world, ChatScanner.ScanType.ADD);
     }
 
     private static int cleanFrom(String world) {
-        return scanFrom(world, MsgScanner.ScanType.CLEAN);
+        return scanFrom(world, ChatScanner.ScanType.CLEAN);
     }
 
     private static int updateFrom(String world) {
-        return scanFrom(world, MsgScanner.ScanType.UPDATE);
+        return scanFrom(world, ChatScanner.ScanType.UPDATE);
     }
 
-    private static int scanFrom(String world, MsgScanner.ScanType scanType) {
+    private static int scanFrom(String world, ChatScanner.ScanType scanType) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
             connection.sendCommand("claimlist");
-            MsgScanner.startClaimScan(world, scanType);
+            ChatScanner.startClaimScan(world, scanType);
         }
         return Command.SINGLE_SUCCESS;
     }

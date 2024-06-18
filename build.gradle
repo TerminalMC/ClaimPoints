@@ -99,9 +99,10 @@ subprojects {
                 "neoforge_loader_versions": neoforge_loader_versions,
                 "neoforge_version": neoforge_version,
                 "neoforge_versions": neoforge_versions,
-                "minimap_version": minimap_version,
-                "minimap_versions_fabric_list": asJsonList(minimap_versions_fabric),
-                "minimap_versions_neoforge": minimap_versions_neoforge,
+                "xm_version_fabric": xm_version_fabric,
+                "xm_versions_fabric_list": asJsonList(xm_versions_fabric),
+                "xm_version_neoforge": xm_version_neoforge,
+                "xm_versions_neoforge": xm_versions_neoforge,
                 "clothconfig_version": clothconfig_version,
                 "clothconfig_versions_fabric_list": asJsonList(clothconfig_versions_fabric),
                 "clothconfig_versions_neoforge": clothconfig_versions_neoforge,
@@ -174,7 +175,6 @@ subprojects {
             }
             tasks.githubRelease.onlyIf { System.getenv().GITHUB_TOKEN }
             tasks.githubRelease.dependsOn(build)
-
         }
     }
 }

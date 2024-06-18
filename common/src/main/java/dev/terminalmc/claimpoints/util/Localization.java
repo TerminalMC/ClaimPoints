@@ -1,6 +1,6 @@
-package com.notryken.claimpoints.util;
+package dev.terminalmc.claimpoints.util;
 
-import com.notryken.claimpoints.ClaimPoints;
+import dev.terminalmc.claimpoints.ClaimPoints;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 

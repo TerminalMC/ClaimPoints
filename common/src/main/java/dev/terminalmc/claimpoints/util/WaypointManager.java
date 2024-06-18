@@ -1,8 +1,8 @@
-package com.notryken.claimpoints.util;
+package dev.terminalmc.claimpoints.util;
 
 import com.mojang.datafixers.util.Pair;
-import com.notryken.claimpoints.ClaimPoints;
-import com.notryken.claimpoints.config.Config;
+import dev.terminalmc.claimpoints.ClaimPoints;
+import dev.terminalmc.claimpoints.config.Config;
 import net.minecraft.world.phys.Vec2;
 import xaero.common.XaeroMinimapSession;
 import xaero.common.minimap.waypoints.Waypoint;

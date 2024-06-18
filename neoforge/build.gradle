@@ -13,9 +13,14 @@ dependencies {
     compileOnly("io.github.llamalad7:mixinextras-neoforge:${mixinextras_version}")
     annotationProcessor("io.github.llamalad7:mixinextras-neoforge:${mixinextras_version}")
 
-    implementation("maven.modrinth:xaeros-minimap:${minimap_version}_NeoForge_${minecraft_version}")
+    implementation("maven.modrinth:1bokaNcj:${xm_version_neoforge}")
 
     implementation("me.shedaniel.cloth:cloth-config-neoforge:${clothconfig_version}")
+}
+
+// Temporary workaround for a NeoGradle bug
+tasks.named("test").configure {
+    enabled = false
 }
 
 if (file("src/main/resources/META-INF/accesstransformer.cfg").exists()) {

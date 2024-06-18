@@ -1,4 +1,4 @@
-package com.notryken.claimpoints.util;
+package dev.terminalmc.claimpoints.util;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

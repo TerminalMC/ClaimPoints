@@ -13,7 +13,7 @@ dependencies {
     annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}")
 
     // Using NeoForge version here to avoid having to remap
-    implementation("maven.modrinth:xaeros-minimap:${minimap_version}_NeoForge_${minecraft_version}")
+    implementation("maven.modrinth:1bokaNcj:${xm_version_neoforge}")
 
     // Using NeoForge version here to avoid having to remap
     implementation("me.shedaniel.cloth:cloth-config-neoforge:${clothconfig_version}")

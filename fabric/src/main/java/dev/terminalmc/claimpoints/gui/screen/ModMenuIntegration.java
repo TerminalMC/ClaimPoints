@@ -1,4 +1,4 @@
-package com.notryken.claimpoints.gui.screen;
+package dev.terminalmc.claimpoints.gui.screen;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;

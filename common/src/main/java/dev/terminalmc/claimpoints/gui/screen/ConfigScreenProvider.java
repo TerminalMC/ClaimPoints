@@ -1,15 +1,15 @@
-package com.notryken.claimpoints.gui.screen;
+package dev.terminalmc.claimpoints.gui.screen;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
-import net.minecraft.client.gui.screens.OptionsSubScreen;
+import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 
-import static com.notryken.claimpoints.util.Localization.localized;
+import static dev.terminalmc.claimpoints.util.Localization.localized;
 
 /**
  * <p>Wraps {@link ClothConfigScreenProvider} and provides a backup screen for
@@ -60,5 +60,8 @@ public class ConfigScreenProvider {
                     .build();
             addRenderableWidget(exitButton);
         }
+
+        @Override
+        protected void addOptions() {}
     }
 }
