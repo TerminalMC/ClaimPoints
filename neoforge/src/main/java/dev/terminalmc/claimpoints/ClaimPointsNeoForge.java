@@ -13,7 +13,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
-@Mod(ClaimPoints.MOD_ID)
+@Mod(value = ClaimPoints.MOD_ID, dist = Dist.CLIENT)
 public class ClaimPointsNeoForge {
     public ClaimPointsNeoForge() {
         // Config screen
