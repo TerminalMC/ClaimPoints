@@ -1,0 +1,21 @@
+{
+  "screen.${mod_id}.default": "ClaimPoints",
+  "screen.${mod_id}.options": "ClaimPoints Options",
+
+  "message.${mod_id}.install_cloth": "Install Cloth Config API to access mod options.",
+  "message.${mod_id}.go_modrinth": "View on Modrinth",
+
+  "option.${mod_id}.waypoints": "Waypoints",
+  "option.${mod_id}.name_format": "Waypoint name format",
+  "option.${mod_id}.name_format.error": "Name format must contain %d for claim size",
+  "option.${mod_id}.alias": "Waypoint alias",
+  "option.${mod_id}.alias.error": "Alias must be either 1 or 2 characters",
+  "option.${mod_id}.color": "Waypoint color",
+
+  "option.${mod_id}.griefprevention": "GriefPrevention",
+  "option.${mod_id}.command": "Claim list command",
+  "option.${mod_id}.first_pattern": "First line pattern",
+  "option.${mod_id}.claim_pattern": "Claim line pattern",
+  "option.${mod_id}.ignored_pattern": "Ignored line patterns",
+  "option.${mod_id}.ending_pattern": "Ending line patterns"
+}
