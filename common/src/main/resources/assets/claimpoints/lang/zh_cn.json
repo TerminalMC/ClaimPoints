@@ -1,21 +1,21 @@
 {
-  "screen.${mod_id}.default": "ClaimPoints",
-  "screen.${mod_id}.options": "ClaimPoints选项",
+  "screen.claimpoints.default": "ClaimPoints",
+  "screen.claimpoints.options": "ClaimPoints选项",
 
-  "message.${mod_id}.install_cloth": "安装Cloth Config API以访问Mod选项。",
-  "message.${mod_id}.go_modrinth": "在Modrinth上查看",
+  "message.claimpoints.install_cloth": "安装Cloth Config API以访问Mod选项。",
+  "message.claimpoints.go_modrinth": "在Modrinth上查看",
 
-  "option.${mod_id}.waypoints": "路径点",
-  "option.${mod_id}.name_format": "路径点名称格式",
-  "option.${mod_id}.name_format.error": "名称格式必须包含%d以表示声明大小",
-  "option.${mod_id}.alias": "路径点别名",
-  "option.${mod_id}.alias.error": "别名必须为1或2个字符",
-  "option.${mod_id}.color": "路径点颜色",
+  "option.claimpoints.waypoints": "路径点",
+  "option.claimpoints.name_format": "路径点名称格式",
+  "option.claimpoints.name_format.error": "名称格式必须包含%d以表示声明大小",
+  "option.claimpoints.alias": "路径点别名",
+  "option.claimpoints.alias.error": "别名必须为1或2个字符",
+  "option.claimpoints.color": "路径点颜色",
 
-  "option.${mod_id}.griefprevention": "悲伤预防",
-  "option.${mod_id}.command": "声明列表命令",
-  "option.${mod_id}.first_pattern": "第一线模式",
-  "option.${mod_id}.claim_pattern": "声明线模式",
-  "option.${mod_id}.ignored_pattern": "忽略线模式",
-  "option.${mod_id}.ending_pattern": "结束线模式"
+  "option.claimpoints.griefprevention": "悲伤预防",
+  "option.claimpoints.command": "声明列表命令",
+  "option.claimpoints.first_pattern": "第一线模式",
+  "option.claimpoints.claim_pattern": "声明线模式",
+  "option.claimpoints.ignored_pattern": "忽略线模式",
+  "option.claimpoints.ending_pattern": "结束线模式"
 }
