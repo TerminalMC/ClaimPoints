@@ -112,7 +112,18 @@ subprojects {
                 repo = github_repo
                 tagName = "v${mod_version}"
                 prerelease = release_type == "alpha" || release_type == "beta"
-                releaseName = "v${mod_version} (${release_game_versions_fabric})"
+                releaseName = "v${mod_version}"
+
+                String changelog = "\nChangelog\n" + rootProject.file("changelog.md").text
+                String versions = "MC versions\n"
+                if (project.hasProperty("release_game_versions_fabric"))
+                    versions = String.format("%s - Fabric: %s\n", versions,
+                            project.property("release_game_versions_fabric"))
+                if (project.hasProperty("release_game_versions_neoforge"))
+                    versions = String.format("%s - NeoForge: %s\n", versions,
+                            project.property("release_game_versions_neoforge"))
+                body = versions + changelog
+                
                 body = rootProject.file("changelog.md").text
                 targetCommitish = grgitService.service.get().grgit.branch.current().name
                 overwrite = false
