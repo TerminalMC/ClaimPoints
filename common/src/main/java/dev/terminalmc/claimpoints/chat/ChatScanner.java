@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 TerminalMC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package dev.terminalmc.claimpoints.chat;
 
 import com.mojang.datafixers.util.Pair;
@@ -61,7 +77,7 @@ public class ChatScanner {
      */
     public static void checkStop() {
         if (scanning() && System.currentTimeMillis() > stopTime) {
-            stopScan();
+            stopScanTimeout();
             if (world == null) {
                 handleWorlds();
             } else {
@@ -76,7 +92,7 @@ public class ChatScanner {
      * <p>To be called immediately after sending the claim list command.</p>
      */
     public static void startWorldScan() {
-        stopTime = Long.MAX_VALUE;
+        stopTime = System.currentTimeMillis() + 5000;
         world = null; // Indicates a world scan
         worlds.clear();
         scanning = true;
@@ -89,12 +105,26 @@ public class ChatScanner {
      * <p>To be called immediately after sending the claim list command.</p>
      */
     public static void startClaimScan(@NotNull String pWorld, ClaimScanType pScanType) {
-        stopTime = Long.MAX_VALUE;
+        stopTime = System.currentTimeMillis() + 5000;
         world = pWorld; // Scan for pWorld claims
         claimScanType = pScanType;
         claims.clear();
         scanning = true;
         scanState = ScanState.WAITING;
+    }
+
+    public static void stopScanTimeout() {
+        stopScan();
+        Commands.sendWithPrefix("Timed out while waiting for GriefPrevention message. " +
+                "If the claim list appears in chat, you need to adjust the regex patterns in " +
+                "ClaimPoints config to capture it.");
+    }
+    
+    public static void stopScanInvalid() {
+        stopScan();
+        Commands.sendWithPrefix("Unrecognized message found while waiting for " +
+                "GriefPrevention message. If the claim list appears in chat, you need to adjust " +
+                "the regex patterns in ClaimPoints config to capture it.");
     }
 
     /**
@@ -146,7 +176,7 @@ public class ChatScanner {
                 }
                 else {
                     // Unrecognized message, cancel scan
-                    stopScan();
+                    stopScanInvalid();
                     return false;
                 }
             }
@@ -219,7 +249,7 @@ public class ChatScanner {
                 }
                 else {
                     // Unrecognized message, cancel scan
-                    stopScan();
+                    stopScanInvalid();
                     return false;
                 }
             }

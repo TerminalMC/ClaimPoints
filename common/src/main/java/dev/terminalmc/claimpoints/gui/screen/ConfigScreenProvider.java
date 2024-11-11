@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 TerminalMC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package dev.terminalmc.claimpoints.gui.screen;
 
 import net.minecraft.Util;
@@ -12,7 +28,7 @@ import net.minecraft.network.chat.CommonComponents;
 import static dev.terminalmc.claimpoints.util.Localization.localized;
 
 /**
- * <p>Wraps {@link ClothConfigScreenProvider} and provides a backup screen for
+ * <p>Wraps {@link ClothScreenProvider} and provides a backup screen for
  * use when the Cloth Config mod is not loaded. This allows the dependency on
  * Cloth Config to be defined as optional.</p>
  */
@@ -20,7 +36,7 @@ public class ConfigScreenProvider {
 
     public static Screen getConfigScreen(Screen parent) {
         try {
-            return ClothConfigScreenProvider.getConfigScreen(parent);
+            return ClothScreenProvider.getConfigScreen(parent);
         }
         catch (NoClassDefFoundError ignored) {
             return new BackupScreen(parent);

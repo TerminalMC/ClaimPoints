@@ -26,10 +26,13 @@ where your existing claims are.
 
 - Use `/cp help` in-game for command info.
 
+- If, when running the `/cp` commands, the GriefPrevention claim list shows up in chat, you will need to edit the regex
+patterns in the config to allow the mod to correctly capture the claim list.
+
 <table style="width:100%;">
   <tr>
-    <td style="width:50%;"><img src="https://raw.githubusercontent.com/TerminalMC/ClaimPoints/HEAD/assets/images/showcase/chat_01.png" style="width:100%;"></td>
-    <td style="width:50%;"><img src="https://raw.githubusercontent.com/TerminalMC/ClaimPoints/HEAD/assets/images/showcase/config_01.png" style="width:100%;"></td>
+    <td style="width:50%;"><img src="https://raw.githubusercontent.com/TerminalMC/ClaimPoints/HEAD/assets/images/chat_01.png" style="width:100%;"></td>
+    <td style="width:50%;"><img src="https://raw.githubusercontent.com/TerminalMC/ClaimPoints/HEAD/assets/images/config_01.png" style="width:100%;"></td>
   </tr>
 </table>
 
