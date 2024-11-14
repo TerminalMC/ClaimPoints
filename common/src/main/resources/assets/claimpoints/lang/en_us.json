@@ -1,21 +1,20 @@
 {
-  "screen.claimpoints.default": "ClaimPoints",
-  "screen.claimpoints.options": "ClaimPoints Options",
+  "claimpoints.name": "ClaimPoints",
 
-  "message.claimpoints.install_cloth": "Install Cloth Config API to access mod options.",
-  "message.claimpoints.go_modrinth": "View on Modrinth",
+  "message.claimpoints.installCloth": "Install Cloth Config API to access mod options.",
+  "message.claimpoints.viewModrinth": "View on Modrinth",
 
   "option.claimpoints.waypoints": "Waypoints",
-  "option.claimpoints.name_format": "Waypoint name format",
-  "option.claimpoints.name_format.error": "Name format must contain %d for claim size",
+  "option.claimpoints.nameFormat": "Waypoint name format",
+  "option.claimpoints.nameFormat.error": "Name format must contain %d for claim size",
   "option.claimpoints.alias": "Waypoint alias",
   "option.claimpoints.alias.error": "Alias must be either 1 or 2 characters",
   "option.claimpoints.color": "Waypoint color",
 
   "option.claimpoints.griefprevention": "GriefPrevention",
   "option.claimpoints.command": "Claim list command",
-  "option.claimpoints.first_pattern": "First line pattern",
-  "option.claimpoints.claim_pattern": "Claim line pattern",
-  "option.claimpoints.ignored_pattern": "Ignored line patterns",
-  "option.claimpoints.ending_pattern": "Ending line patterns"
+  "option.claimpoints.firstPattern": "First line pattern",
+  "option.claimpoints.claimPattern": "Claim line pattern",
+  "option.claimpoints.ignoredPattern": "Ignored line patterns",
+  "option.claimpoints.endingPattern": "Ending line patterns"
 }

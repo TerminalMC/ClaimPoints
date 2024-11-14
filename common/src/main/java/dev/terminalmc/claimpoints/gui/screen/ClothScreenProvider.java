@@ -20,7 +20,6 @@ import dev.terminalmc.claimpoints.ClaimPoints;
 import dev.terminalmc.claimpoints.config.Config;
 import me.shedaniel.clothconfig2.api.*;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
 import java.util.Optional;
 
@@ -39,7 +38,7 @@ public class ClothScreenProvider {
 
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
-                .setTitle(Component.literal("ClaimPoints Settings"))
+                .setTitle(localized("name"))
                 .setSavingRunnable(() -> {
                     try {
                         Config.get().verify();
@@ -56,17 +55,17 @@ public class ClothScreenProvider {
         ConfigCategory cp = builder.getOrCreateCategory(localized(
                 "option", "waypoints"));
 
-        cp.addEntry(eb.startStrField(localized("option", "name_format"), config.cpSettings.nameFormat)
-                .setDefaultValue(Config.ClaimPointSettings.defaultNameFormat)
+        cp.addEntry(eb.startStrField(localized("option", "nameFormat"), config.cpSettings.nameFormat)
+                .setDefaultValue(Config.ClaimPointSettings.nameFormatDefault)
                 .setErrorSupplier(val -> {
                     if (val.contains("%d")) return Optional.empty();
-                    else return Optional.of(localized("option", "name_format.error"));
+                    else return Optional.of(localized("option", "nameFormat.error"));
                 })
                 .setSaveConsumer(var -> config.cpSettings.nameFormat = var)
                 .build());
 
         cp.addEntry(eb.startStrField(localized("option", "alias"), config.cpSettings.alias)
-                .setDefaultValue(Config.ClaimPointSettings.defaultAlias)
+                .setDefaultValue(Config.ClaimPointSettings.aliasDefault)
                 .setErrorSupplier(val -> {
                     if (!val.isEmpty() && val.length() < 3) return Optional.empty();
                     else return Optional.of(localized("option", "alias.error"));
@@ -78,7 +77,7 @@ public class ClothScreenProvider {
                         config.cpSettings.color, String::valueOf)
                 .setSuggestionMode(false)
                 .setSelections(ClaimPoints.waypointColorNames)
-                .setDefaultValue(Config.ClaimPointSettings.defaultColor)
+                .setDefaultValue(Config.ClaimPointSettings.colorDefault)
                 .setSaveConsumer(var -> config.cpSettings.color = var)
                 .build());
 
@@ -88,31 +87,31 @@ public class ClothScreenProvider {
 
         gp.addEntry(eb.startStrField(localized("option", "command"),
                         config.gpSettings.claimListCommand)
-                .setDefaultValue(Config.GriefPreventionSettings.defaultClaimListCommand)
+                .setDefaultValue(Config.GriefPreventionSettings.claimListCommandDefault)
                 .setSaveConsumer(var -> config.gpSettings.claimListCommand = var)
                 .build());
 
-        gp.addEntry(eb.startStrField(localized("option", "first_pattern"),
+        gp.addEntry(eb.startStrField(localized("option", "firstPattern"),
                         config.gpSettings.firstLinePattern)
-                .setDefaultValue(Config.GriefPreventionSettings.defaultFirstLinePattern)
+                .setDefaultValue(Config.GriefPreventionSettings.firstLinePatternDefault)
                 .setSaveConsumer(var -> config.gpSettings.firstLinePattern = var)
                 .build());
 
-        gp.addEntry(eb.startStrField(localized("option", "claim_pattern"),
+        gp.addEntry(eb.startStrField(localized("option", "claimPattern"),
                         config.gpSettings.claimLinePattern)
-                .setDefaultValue(Config.GriefPreventionSettings.defaultClaimLinePattern)
+                .setDefaultValue(Config.GriefPreventionSettings.claimLinePatternDefault)
                 .setSaveConsumer(var -> config.gpSettings.claimLinePattern = var)
                 .build());
 
-        gp.addEntry(eb.startStrList(localized("option", "ignored_pattern"),
+        gp.addEntry(eb.startStrList(localized("option", "ignoredPattern"),
                         config.gpSettings.ignoredLinePatterns)
-                .setDefaultValue(Config.GriefPreventionSettings.defaultIgnoredLinePatterns)
+                .setDefaultValue(Config.GriefPreventionSettings.ignoredLinePatternsDefault)
                 .setSaveConsumer(var -> config.gpSettings.ignoredLinePatterns = var)
                 .build());
 
-        gp.addEntry(eb.startStrList(localized("option", "ending_pattern"),
+        gp.addEntry(eb.startStrList(localized("option", "endingPattern"),
                         config.gpSettings.endingLinePatterns)
-                .setDefaultValue(Config.GriefPreventionSettings.defaultEndingLinePatterns)
+                .setDefaultValue(Config.GriefPreventionSettings.endingLinePatternsDefault)
                 .setSaveConsumer(var -> config.gpSettings.endingLinePatterns = var)
                 .build());
 

@@ -43,45 +43,45 @@ public class Config {
     public final GriefPreventionSettings gpSettings = new GriefPreventionSettings();
 
     public static class ClaimPointSettings {
-        public static final String defaultNameFormat = "CP (%d)";
-        public String nameFormat = defaultNameFormat;
+        public static final String nameFormatDefault = "CP (%d)";
+        public String nameFormat = nameFormatDefault;
 
         public static final String defaultNamePattern = "^CP \\((\\d+)\\)$";
         public String namePattern = defaultNamePattern;
         public transient Pattern nameCompiled;
 
-        public static final String defaultAlias = "C";
-        public String alias = defaultAlias;
+        public static final String aliasDefault = "C";
+        public String alias = aliasDefault;
 
-        public static final String defaultColor = ClaimPoints.waypointColorNames.getLast();
-        public String color = defaultColor;
+        public static final String colorDefault = ClaimPoints.waypointColorNames.getLast();
+        public String color = colorDefault;
         public transient int colorIdx;
     }
 
     public static class GriefPreventionSettings {
-        public static final String defaultClaimListCommand = "claimlist";
-        public String claimListCommand = defaultClaimListCommand;
+        public static final String claimListCommandDefault = "claimlist";
+        public String claimListCommand = claimListCommandDefault;
 
-        public static final String defaultFirstLinePattern =
+        public static final String firstLinePatternDefault =
                 "^-?\\d+ blocks from play \\+ -?\\d+ bonus = -?\\d+ total\\.$";
-        public String firstLinePattern = defaultFirstLinePattern;
+        public String firstLinePattern = firstLinePatternDefault;
         public transient Pattern firstLineCompiled;
 
-        public static final String defaultClaimLinePattern =
+        public static final String claimLinePatternDefault =
                 "^(.+): x(-?\\d+), z(-?\\d+) \\(-?(\\d+) blocks\\)$";
-        public String claimLinePattern = defaultClaimLinePattern;
+        public String claimLinePattern = claimLinePatternDefault;
         public transient Pattern claimLineCompiled;
 
-        public static final List<String> defaultIgnoredLinePatterns = List.of(
+        public static final List<String> ignoredLinePatternsDefault = List.of(
                 "^Claims:$"
         );
-        public List<String> ignoredLinePatterns = new ArrayList<>(defaultIgnoredLinePatterns);
+        public List<String> ignoredLinePatterns = new ArrayList<>(ignoredLinePatternsDefault);
         public transient List<Pattern> ignoredLinesCompiled;
 
-        public static final List<String> defaultEndingLinePatterns = List.of(
+        public static final List<String> endingLinePatternsDefault = List.of(
                 "^ = -?\\d* blocks left to spend$"
         );
-        public List<String> endingLinePatterns = new ArrayList<>(defaultEndingLinePatterns);
+        public List<String> endingLinePatterns = new ArrayList<>(endingLinePatternsDefault);
         public transient List<Pattern> endingLinesCompiled;
     }
 

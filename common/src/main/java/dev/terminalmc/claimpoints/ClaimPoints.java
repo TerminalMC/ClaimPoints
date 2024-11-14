@@ -18,7 +18,7 @@ package dev.terminalmc.claimpoints;
 
 import dev.terminalmc.claimpoints.config.Config;
 import dev.terminalmc.claimpoints.util.ModLogger;
-import dev.terminalmc.claimpoints.chat.ChatScanner;
+import dev.terminalmc.claimpoints.util.ChatScanner;
 import dev.terminalmc.claimpoints.xaero.WaypointManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

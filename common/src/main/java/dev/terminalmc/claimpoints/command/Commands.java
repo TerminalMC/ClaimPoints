@@ -22,7 +22,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.terminalmc.claimpoints.ClaimPoints;
 import dev.terminalmc.claimpoints.config.Config;
-import dev.terminalmc.claimpoints.chat.ChatScanner;
+import dev.terminalmc.claimpoints.util.ChatScanner;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -148,18 +148,18 @@ public class Commands<S> extends CommandDispatcher<S> {
     }
 
     private static int addFrom(String world) {
-        return scanFrom(world, ChatScanner.ClaimScanType.ADD);
+        return scanFrom(world, ChatScanner.ScanType.ADD);
     }
 
     private static int cleanFrom(String world) {
-        return scanFrom(world, ChatScanner.ClaimScanType.CLEAN);
+        return scanFrom(world, ChatScanner.ScanType.CLEAN);
     }
 
     private static int updateFrom(String world) {
-        return scanFrom(world, ChatScanner.ClaimScanType.UPDATE);
+        return scanFrom(world, ChatScanner.ScanType.UPDATE);
     }
 
-    private static int scanFrom(String world, ChatScanner.ClaimScanType scanType) {
+    private static int scanFrom(String world, ChatScanner.ScanType scanType) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
             connection.sendCommand(Config.get().gpSettings.claimListCommand);

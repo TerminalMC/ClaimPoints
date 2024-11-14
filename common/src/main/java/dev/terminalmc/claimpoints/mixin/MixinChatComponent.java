@@ -16,7 +16,7 @@
 
 package dev.terminalmc.claimpoints.mixin;
 
-import dev.terminalmc.claimpoints.chat.ChatScanner;
+import dev.terminalmc.claimpoints.util.ChatScanner;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
@@ -35,8 +35,6 @@ public class MixinChatComponent {
             cancellable = true
     )
     private void checkMessage(Component message, MessageSignature signature, GuiMessageTag tag, CallbackInfo ci) {
-        if (ChatScanner.scanning() && ChatScanner.scan(message)) {
-            ci.cancel();
-        }
+        if (ChatScanner.tryScan(message)) ci.cancel();
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.terminalmc.claimpoints.chat;
+package dev.terminalmc.claimpoints.util;
 
 import com.mojang.datafixers.util.Pair;
 import dev.terminalmc.claimpoints.ClaimPoints;
@@ -35,21 +35,19 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * <p>ClaimPoints obtains information about claim-worlds and claims by sending
- * GriefPrevention commands, then scanning chat for the result.</p>
+ * ClaimPoints obtains information about claim-worlds and claims by sending
+ * GriefPrevention commands, then scanning chat for the result.
  *
  * <p>There are two types of scan, both of which use the claim-list command:
  * A world scan reads the list of claims, and identifies all unique world names.
  * A claim scan reads the list of claims, and parses all claims for which the
  * world name matches the user-provided world name.</p>
- *
- * <p></p>
  */
 public class ChatScanner {
     private enum ScanState {
         WAITING, READING, ENDING
     }
-    public enum ClaimScanType {
+    public enum ScanType {
         ADD, CLEAN, UPDATE
     }
 
@@ -58,32 +56,12 @@ public class ChatScanner {
     private static ScanState scanState;
     private static long stopTime;
 
-    private static ClaimScanType claimScanType;
+    private static ScanType scanType;
     private static final Set<String> worlds = new HashSet<>();
     private static final List<Pair<Vec2,Integer>> claims = new ArrayList<>();
 
     public static Stream<String> getWorlds() {
         return worlds.stream();
-    }
-
-    public static boolean scanning() {
-        return scanning;
-    }
-
-    /**
-     * Scans are given a TTL after each non-final message read, to guard against
-     * being left 'hanging' due to a chat anomaly. This method checks the TTL
-     * and stops the scan if it has expired.
-     */
-    public static void checkStop() {
-        if (scanning() && System.currentTimeMillis() > stopTime) {
-            stopScanTimeout();
-            if (world == null) {
-                handleWorlds();
-            } else {
-                handleClaims();
-            }
-        }
     }
 
     /**
@@ -104,23 +82,36 @@ public class ChatScanner {
      *
      * <p>To be called immediately after sending the claim list command.</p>
      */
-    public static void startClaimScan(@NotNull String pWorld, ClaimScanType pScanType) {
+    public static void startClaimScan(@NotNull String pWorld, ScanType pScanType) {
         stopTime = System.currentTimeMillis() + 5000;
         world = pWorld; // Scan for pWorld claims
-        claimScanType = pScanType;
+        scanType = pScanType;
         claims.clear();
         scanning = true;
         scanState = ScanState.WAITING;
     }
 
-    public static void stopScanTimeout() {
-        stopScan();
-        Commands.sendWithPrefix("Timed out while waiting for GriefPrevention message. " +
-                "If the claim list appears in chat, you need to adjust the regex patterns in " +
-                "ClaimPoints config to capture it.");
+    /**
+     * Scans are given a TTL after each non-final message read, to guard against
+     * being left 'hanging' due to a chat anomaly. This method checks the TTL
+     * and stops the scan if it has expired.
+     */
+    public static void checkStop() {
+        if (scanning && System.currentTimeMillis() > stopTime) {
+            stopScanTimeout();
+            if (world == null) {
+                handleWorlds();
+            } else {
+                handleClaims();
+            }
+        }
     }
-    
-    public static void stopScanInvalid() {
+
+    private static void stopScanTimeout() {
+        stopScan();
+    }
+
+    private static void stopScanInvalid() {
         stopScan();
         Commands.sendWithPrefix("Unrecognized message found while waiting for " +
                 "GriefPrevention message. If the claim list appears in chat, you need to adjust " +
@@ -133,14 +124,14 @@ public class ChatScanner {
      * <p>Note: Scan initiation methods reset all scan parameters, so no need
      * for that here.</p>
      */
-    public static void stopScan() {
+    private static void stopScan() {
         scanning = false;
     }
 
     /**
      * @return true if the string matches any of the patterns, false otherwise.
      */
-    public static boolean anyMatches(String content, List<Pattern> patterns) {
+    private static boolean anyMatches(String content, List<Pattern> patterns) {
         for (Pattern pattern : patterns) {
             if (pattern.matcher(content).find()) {
                 return true;
@@ -152,7 +143,15 @@ public class ChatScanner {
     /**
      * @return true if the message should be hidden, false otherwise.
      */
-    public static boolean scan(Component message) {
+    public static boolean tryScan(Component message) {
+        if (!scanning) return false;
+        return scan(message);
+    }
+
+    /**
+     * @return true if the message should be hidden, false otherwise.
+     */
+    private static boolean scan(Component message) {
         stopTime = System.currentTimeMillis() + 1000;
         if (world == null) {
             return worldScan(message);
@@ -223,7 +222,9 @@ public class ChatScanner {
         if (worlds.isEmpty()) {
             Commands.sendWithPrefix("No worlds found using command '/" +
                     Config.get().gpSettings.claimListCommand +
-                    "'. That might be the wrong command, or you might not have any claims.");
+                    "'. That might be the wrong command, or you might not have any claims. " +
+                    "If the claim list appears in chat, you need to adjust " +
+                    "the regex patterns in ClaimPoints config to capture it.");
         } else {
             StringBuilder sb = new StringBuilder("Claim worlds (" + worlds.size() + "):");
             for (String world : worlds) {
@@ -299,7 +300,7 @@ public class ChatScanner {
      * <p>To be called immediately after scan completion.</p>
      */
     private static void handleClaims() {
-        switch(claimScanType) {
+        switch(scanType) {
             case ADD -> addClaimPoints();
             case CLEAN -> cleanClaimPoints();
             case UPDATE -> updateClaimPoints();
