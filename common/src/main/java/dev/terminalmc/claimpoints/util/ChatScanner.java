@@ -168,7 +168,7 @@ public class ChatScanner {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (Config.get().gpSettings.firstLineCompiled.matcher(content).find()) {
+                if (Config.gpSettings().firstLineCompiled.matcher(content).find()) {
                     // Valid first message, start reading
                     scanState = ScanState.READING;
                     return true;
@@ -180,13 +180,13 @@ public class ChatScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = Config.get().gpSettings.claimLineCompiled.matcher(content);
+                Matcher clMatcher = Config.gpSettings().claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     // Valid claim message, add the world
                     worlds.add(clMatcher.group(1));
                     return true;
                 }
-                else if (anyMatches(content, Config.get().gpSettings.ignoredLinesCompiled)) {
+                else if (anyMatches(content, Config.gpSettings().ignoredLinesCompiled)) {
                     // Recognized non-claim body message, ignore
                     return true;
                 }
@@ -195,11 +195,11 @@ public class ChatScanner {
                     scanState = ScanState.ENDING;
                     handleWorlds();
                     // Hide the message if it is a valid ending line
-                    return anyMatches(content, Config.get().gpSettings.endingLinesCompiled);
+                    return anyMatches(content, Config.gpSettings().endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, Config.get().gpSettings.endingLinesCompiled)) {
+                if (anyMatches(content, Config.gpSettings().endingLinesCompiled)) {
                     // Valid ending message, hide it
                     return true;
                 }
@@ -221,7 +221,7 @@ public class ChatScanner {
     private static void handleWorlds() {
         if (worlds.isEmpty()) {
             Commands.sendWithPrefix("No worlds found using command '/" +
-                    Config.get().gpSettings.claimListCommand +
+                    Config.gpSettings().claimListCommand +
                     "'. That might be the wrong command, or you might not have any claims. " +
                     "If the claim list appears in chat, you need to adjust " +
                     "the regex patterns in ClaimPoints config to capture it.");
@@ -243,7 +243,7 @@ public class ChatScanner {
         String content = message.getString();
         switch(scanState) {
             case WAITING -> {
-                if (Config.get().gpSettings.firstLineCompiled.matcher(content).find()) {
+                if (Config.gpSettings().firstLineCompiled.matcher(content).find()) {
                     // Valid first message, start reading
                     scanState = ScanState.READING;
                     return true;
@@ -255,7 +255,7 @@ public class ChatScanner {
                 }
             }
             case READING -> {
-                Matcher clMatcher = Config.get().gpSettings.claimLineCompiled.matcher(content);
+                Matcher clMatcher = Config.gpSettings().claimLineCompiled.matcher(content);
                 if (clMatcher.find()) {
                     // Valid claim message, parse the claim
                     if (clMatcher.group(1).equals(world)) {
@@ -266,7 +266,7 @@ public class ChatScanner {
                     }
                     return true;
                 }
-                else if (anyMatches(content, Config.get().gpSettings.ignoredLinesCompiled)) {
+                else if (anyMatches(content, Config.gpSettings().ignoredLinesCompiled)) {
                     // Recognized non-claim body message, ignore
                     return true;
                 }
@@ -275,11 +275,11 @@ public class ChatScanner {
                     scanState = ScanState.ENDING;
                     handleClaims();
                     // Hide the message if it is a valid ending line
-                    return anyMatches(content, Config.get().gpSettings.endingLinesCompiled);
+                    return anyMatches(content, Config.gpSettings().endingLinesCompiled);
                 }
             }
             case ENDING -> {
-                if (anyMatches(content, Config.get().gpSettings.endingLinesCompiled)) {
+                if (anyMatches(content, Config.gpSettings().endingLinesCompiled)) {
                     // Valid ending message, hide it
                     return true;
                 }

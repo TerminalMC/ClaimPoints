@@ -97,9 +97,9 @@ public class WaypointManager {
         for (Pair<Vec2,Integer> claim : claims) {
             int x = (int)claim.getFirst().x;
             int z = (int)claim.getFirst().y;
-            if (!anyWpMatches(x, z, Config.get().cpSettings.nameCompiled, wpList)) {
-                wpList.add(new Waypoint(x, 0, z, String.format(Config.get().cpSettings.nameFormat, claim.getSecond()),
-                        Config.get().cpSettings.alias, Config.get().cpSettings.colorIdx, 0, false, false));
+            if (!anyWpMatches(x, z, Config.cpSettings().nameCompiled, wpList)) {
+                wpList.add(new Waypoint(x, 0, z, String.format(Config.cpSettings().nameFormat, claim.getSecond()),
+                        Config.cpSettings().alias, Config.cpSettings().colorIdx, 0, false, false));
                 added++;
             }
         }
@@ -122,7 +122,7 @@ public class WaypointManager {
         Iterator<Waypoint> wpListIter = wpList.iterator();
         while (wpListIter.hasNext()) {
             Waypoint wp = wpListIter.next();
-            if (Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+            if (Config.cpSettings().nameCompiled.matcher(wp.getName()).find()) {
                 if (!anyClaimMatches(wp, claims)) {
                     wpListIter.remove();
                     removed++;
@@ -151,7 +151,7 @@ public class WaypointManager {
         Iterator<Waypoint> wpListIter = wpList.iterator();
         while (wpListIter.hasNext()) {
             Waypoint wp = wpListIter.next();
-            if (Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+            if (Config.cpSettings().nameCompiled.matcher(wp.getName()).find()) {
                 switch(passUpdateOrRemove(wp, claims)) {
                     // Case 0 is no change
                     case 1 -> updated++;
@@ -173,7 +173,7 @@ public class WaypointManager {
         for (Pair<Vec2,Integer> claim : claims) {
             if (claim.getFirst().x == wp.getX() && claim.getFirst().y == wp.getZ()) {
                 // Matches a claim
-                Matcher cpMatcher = Config.get().cpSettings.nameCompiled.matcher(wp.getName());
+                Matcher cpMatcher = Config.cpSettings().nameCompiled.matcher(wp.getName());
                 if (cpMatcher.find()) {
                     // Is a ClaimPoint
                     try {
@@ -184,7 +184,7 @@ public class WaypointManager {
                         }
                         else {
                             // Area does not match claim area, update
-                            wp.setName(String.format(Config.get().cpSettings.nameFormat, claim.getSecond()));
+                            wp.setName(String.format(Config.cpSettings().nameFormat, claim.getSecond()));
                             return 1;
                         }
                     }
@@ -198,7 +198,7 @@ public class WaypointManager {
             }
         }
         // No claim matches, so we remove if the waypoint is a ClaimPoint
-        return Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find() ? 2 : 0;
+        return Config.cpSettings().nameCompiled.matcher(wp.getName()).find() ? 2 : 0;
     }
 
     /**
@@ -212,7 +212,7 @@ public class WaypointManager {
 
         int shown = 0;
         for (Waypoint wp : wpList) {
-            if (Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+            if (Config.cpSettings().nameCompiled.matcher(wp.getName()).find()) {
                 wp.setDisabled(false);
                 shown++;
             }
@@ -232,7 +232,7 @@ public class WaypointManager {
 
         int hidden = 0;
         for (Waypoint wp : wpList) {
-            if (Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+            if (Config.cpSettings().nameCompiled.matcher(wp.getName()).find()) {
                 wp.setDisabled(true);
                 hidden++;
             }
@@ -254,7 +254,7 @@ public class WaypointManager {
         Iterator<Waypoint> wpListIter = wpList.iterator();
         while (wpListIter.hasNext()) {
             Waypoint wp = wpListIter.next();
-            if (Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+            if (Config.cpSettings().nameCompiled.matcher(wp.getName()).find()) {
                 wpListIter.remove();
                 removed++;
             }
@@ -274,7 +274,7 @@ public class WaypointManager {
         List<Waypoint> wpList = getWpList(wpWorld);
 
         for (Waypoint wp : wpList) {
-            Matcher matcher = Config.get().cpSettings.nameCompiled.matcher(wp.getName());
+            Matcher matcher = Config.cpSettings().nameCompiled.matcher(wp.getName());
             if (matcher.find()) {
                 wp.setName(String.format(nameFormat, Integer.parseInt(matcher.group(1))));
             }
@@ -293,7 +293,7 @@ public class WaypointManager {
         List<Waypoint> wpList = getWpList(wpWorld);
 
         for (Waypoint wp : wpList) {
-            if (Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+            if (Config.cpSettings().nameCompiled.matcher(wp.getName()).find()) {
                 wp.setSymbol(alias);
             }
         }
@@ -311,7 +311,7 @@ public class WaypointManager {
         List<Waypoint> wpList = getWpList(wpWorld);
 
         for (Waypoint wp : wpList) {
-            if (Config.get().cpSettings.nameCompiled.matcher(wp.getName()).find()) {
+            if (Config.cpSettings().nameCompiled.matcher(wp.getName()).find()) {
                 wp.setColor(colorIdx);
             }
         }

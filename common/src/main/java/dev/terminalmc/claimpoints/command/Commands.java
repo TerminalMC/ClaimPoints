@@ -98,10 +98,10 @@ public class Commands<S> extends CommandDispatcher<S> {
         int indexOfSize = nameFormat.indexOf("%d");
         if (indexOfSize != -1) {
             ClaimPoints.waypointManager.setClaimPointNameFormat(nameFormat);
-            Config.get().cpSettings.nameFormat = nameFormat;
-            Config.get().cpSettings.namePattern = "^" + Pattern.quote(nameFormat.substring(0, indexOfSize)) +
+            Config.cpSettings().nameFormat = nameFormat;
+            Config.cpSettings().namePattern = "^" + Pattern.quote(nameFormat.substring(0, indexOfSize)) +
                     "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
-            Config.get().cpSettings.nameCompiled = Pattern.compile(Config.get().cpSettings.namePattern);
+            Config.cpSettings().nameCompiled = Pattern.compile(Config.cpSettings().namePattern);
             Config.save();
             sendWithPrefix("Set ClaimPoint name format to '" + nameFormat + "'");
         }
@@ -115,7 +115,7 @@ public class Commands<S> extends CommandDispatcher<S> {
     private static int setAlias(String alias) {
         alias = alias.length() <= 2 ? alias : alias.substring(0, 2);
         ClaimPoints.waypointManager.setClaimPointAlias(alias);
-        Config.get().cpSettings.alias = alias;
+        Config.cpSettings().alias = alias;
         Config.save();
 
         sendWithPrefix("Set alias of all ClaimPoints to " + alias);
@@ -129,8 +129,8 @@ public class Commands<S> extends CommandDispatcher<S> {
         }
         else {
             ClaimPoints.waypointManager.setClaimPointColor(index);
-            Config.get().cpSettings.color = color;
-            Config.get().cpSettings.colorIdx = index;
+            Config.cpSettings().color = color;
+            Config.cpSettings().colorIdx = index;
             Config.save();
             sendWithPrefix("Set color of all ClaimPoints to " + color);
         }
@@ -141,7 +141,7 @@ public class Commands<S> extends CommandDispatcher<S> {
     private static int getWorlds() {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            connection.sendCommand(Config.get().gpSettings.claimListCommand);
+            connection.sendCommand(Config.gpSettings().claimListCommand);
             ChatScanner.startWorldScan();
         }
         return Command.SINGLE_SUCCESS;
@@ -162,7 +162,7 @@ public class Commands<S> extends CommandDispatcher<S> {
     private static int scanFrom(String world, ChatScanner.ScanType scanType) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            connection.sendCommand(Config.get().gpSettings.claimListCommand);
+            connection.sendCommand(Config.gpSettings().claimListCommand);
             ChatScanner.startClaimScan(world, scanType);
         }
         return Command.SINGLE_SUCCESS;

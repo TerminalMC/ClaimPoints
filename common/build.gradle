@@ -5,11 +5,12 @@ plugins {
 
 dependencies {
     compileOnly("org.spongepowered:mixin:${mixin_version}")
-    compileOnly("io.github.llamalad7:mixinextras-common:${mixinextras_version}")
-    annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}")
-
-    // Mod dependencies use NeoForge version to avoid remapping complications
-    implementation("me.shedaniel.cloth:cloth-config-neoforge:${clothconfig_version}")
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}"))
+    
+    // Cloth Config API
+    api("me.shedaniel.cloth:cloth-config-neoforge:${clothconfig_version}")
+    
+    // Xaero's Minimap
     implementation("maven.modrinth:1bokaNcj:${xm_version_neoforge}")
 }
 
