@@ -1,0 +1,20 @@
+{
+  "claimpoints.name": "ClaimPoints",
+
+  "message.claimpoints.installCloth": "Установите Cloth Config API для доступа к параметрам мода.",
+  "message.claimpoints.viewModrinth": "Посмотреть на Modrinth",
+
+  "option.claimpoints.waypoints": "Отметки",
+  "option.claimpoints.nameFormat": "Формат имени отметки",
+  "option.claimpoints.nameFormat.error": "Формат имени должен содержать %d для размера участка",
+  "option.claimpoints.alias": "Псевдоним отметки",
+  "option.claimpoints.alias.error": "Псевдоним должен состоять из 1 или 2 символов",
+  "option.claimpoints.color": "Цвет отметки",
+
+  "option.claimpoints.griefprevention": "Предотвращение грифа",
+  "option.claimpoints.command": "Команда списка участников",
+  "option.claimpoints.firstPattern": "Шаблон первой строки",
+  "option.claimpoints.claimPattern": "Шаблон строки участка",
+  "option.claimpoints.ignoredPattern": "Игнорируемые шаблоны строк",
+  "option.claimpoints.endingPattern": "Шаблоны завершающих строк"
+}
