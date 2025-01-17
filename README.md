@@ -21,7 +21,7 @@ claims using waypoints.
 
 ### About
 
-- This is a client-side mod, so it does not allow you to create new claims, only allows easy visualization of where 
+- This is a client-side mod, so it does not allow you to create or edit claims, only allows easy visualization of where 
 your existing claims are.
 
 - Use `/cp help` in-game for command info.
