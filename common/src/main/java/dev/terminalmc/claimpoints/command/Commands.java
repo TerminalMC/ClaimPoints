@@ -33,6 +33,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 import java.util.regex.Pattern;
 
+import static dev.terminalmc.claimpoints.util.Localization.localized;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
@@ -78,19 +79,19 @@ public class Commands<S> extends CommandDispatcher<S> {
 
     private static int showClaimPoints() {
         int total = ClaimPoints.waypointManager.showClaimPoints();
-        sendWithPrefix("Enabled " + total + " ClaimPoints");
+        sendWithPrefix(localized("message", "waypoint.enabled", total));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int hideClaimPoints() {
         int total = ClaimPoints.waypointManager.hideClaimPoints();
-        sendWithPrefix("Disabled " + total + " ClaimPoints");
+        sendWithPrefix(localized("message", "waypoint.disabled", total));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int clearClaimPoints() {
         int removed = ClaimPoints.waypointManager.clearClaimPoints();
-        sendWithPrefix("Removed all ClaimPoints (" + removed + ")");
+        sendWithPrefix(localized("message", "waypoint.removed", removed));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -103,10 +104,10 @@ public class Commands<S> extends CommandDispatcher<S> {
                     "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
             Config.cpSettings().nameCompiled = Pattern.compile(Config.cpSettings().namePattern);
             Config.save();
-            sendWithPrefix("Set ClaimPoint name format to '" + nameFormat + "'");
+            sendWithPrefix(localized("message", "waypoint.nameFormat.set", nameFormat));
         }
         else {
-            sendWithPrefix("'" + nameFormat + "' is not a valid name format. Requires %d for claim size.");
+            sendWithPrefix(localized("message", "waypoint.nameFormat.error", nameFormat));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -118,21 +119,21 @@ public class Commands<S> extends CommandDispatcher<S> {
         Config.cpSettings().alias = alias;
         Config.save();
 
-        sendWithPrefix("Set alias of all ClaimPoints to " + alias);
+        sendWithPrefix(localized("message", "waypoint.alias.set", alias));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setColor(String color) {
         int index = ClaimPoints.waypointColorNames.indexOf(color);
         if (index == -1) {
-            sendWithPrefix("'" + color + "' is not a valid color ID");
+            sendWithPrefix(localized("message", "waypoint.color.error", color));
         }
         else {
             ClaimPoints.waypointManager.setClaimPointColor(index);
             Config.cpSettings().color = color;
             Config.cpSettings().colorIdx = index;
             Config.save();
-            sendWithPrefix("Set color of all ClaimPoints to " + color);
+            sendWithPrefix(localized("message", "waypoint.color.set", color));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -177,48 +178,43 @@ public class Commands<S> extends CommandDispatcher<S> {
         msg.append(Component.literal("NotRyken").withStyle(ChatFormatting.GRAY));
         msg.append(" =============\n");
         msg.append(Component.literal("/cp worlds\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Lists the GriefPrevention worlds in which you have active claims, and " +
-                        "stores them for future autocompletion.\n")
+        msg.append(localized("message", "command.help.worlds").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp add <world>\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Adds the northwest-corner coordinate of all claims in the specified " +
-                        "GriefPrevention world as Xaero's Minimap waypoints in the active waypoint list.\n")
+        msg.append(localized("message", "command.help.add").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp clean <world>\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Removes all ClaimPoints in the active waypoint list, " +
-                        "that do not match a claim in the specified world.\n")
+        msg.append(localized("message", "command.help.clean").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp update <world>\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Combines /cp add <world> and /cp clean <world>, and also updates " +
-                        "ClaimPoint size indicators.\n")
+        msg.append(localized("message", "command.help.update").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints show\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Enables (shows) all ClaimPoints in the active waypoint list.\n")
+        msg.append(localized("message", "command.help.waypoints.show").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints hide\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Disables (hides) all ClaimPoints in the active waypoint list.\n")
+        msg.append(localized("message", "command.help.waypoints.hide").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints clear\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Permanently deletes all ClaimPoints in the active waypoint list.\n")
+        msg.append(localized("message", "command.help.waypoints.clear").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints set nameformat <name format>\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Sets the name format of all ClaimPoints to the specified value. " +
-                        "Note: the name format must contain %d.\n")
+        msg.append(localized("message", "command.help.waypoints.set.nameFormat").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints set alias <alias>\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Sets the alias (symbol) of all ClaimPoints to the specified value.\n")
+        msg.append(localized("message", "command.help.waypoints.set.alias").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
         msg.append(Component.literal("/cp waypoints set color <color>\n").withStyle(ChatFormatting.DARK_AQUA));
-        msg.append(Component.literal("Sets the color of all ClaimPoints to the specified value.\n")
+        msg.append(localized("message", "command.help.waypoints.set.color").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("===============================================\n");
         send(msg);
