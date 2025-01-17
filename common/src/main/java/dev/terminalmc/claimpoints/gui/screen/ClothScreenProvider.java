@@ -55,26 +55,31 @@ public class ClothScreenProvider {
         ConfigCategory cp = builder.getOrCreateCategory(localized(
                 "option", "waypoints"));
 
-        cp.addEntry(eb.startStrField(localized("option", "nameFormat"), config.cpSettings.nameFormat)
+        cp.addEntry(eb.startStrField(localized("option", "waypoints.nameFormat"), 
+                        config.cpSettings.nameFormat)
+                .setTooltip(localized("option", "waypoints.nameFormat.tooltip"))
                 .setDefaultValue(Config.ClaimPointSettings.nameFormatDefault)
                 .setErrorSupplier(val -> {
                     if (val.contains("%d")) return Optional.empty();
-                    else return Optional.of(localized("option", "nameFormat.error"));
+                    else return Optional.of(localized("option", "waypoints.nameFormat.error"));
                 })
                 .setSaveConsumer(var -> config.cpSettings.nameFormat = var)
                 .build());
 
-        cp.addEntry(eb.startStrField(localized("option", "alias"), config.cpSettings.alias)
+        cp.addEntry(eb.startStrField(localized("option", "waypoints.alias"), 
+                        config.cpSettings.alias)
+                .setTooltip(localized("option", "waypoints.alias.tooltip"))
                 .setDefaultValue(Config.ClaimPointSettings.aliasDefault)
                 .setErrorSupplier(val -> {
                     if (!val.isEmpty() && val.length() < 3) return Optional.empty();
-                    else return Optional.of(localized("option", "alias.error"));
+                    else return Optional.of(localized("option", "waypoints.alias.error"));
                 })
                 .setSaveConsumer(var -> config.cpSettings.alias = var)
                 .build());
 
-        cp.addEntry(eb.startDropdownMenu(localized("option", "color"),
+        cp.addEntry(eb.startDropdownMenu(localized("option", "waypoints.color"),
                         config.cpSettings.color, String::valueOf)
+                .setTooltip(localized("option", "waypoints.color.tooltip"))
                 .setSuggestionMode(false)
                 .setSelections(ClaimPoints.waypointColorNames)
                 .setDefaultValue(Config.ClaimPointSettings.colorDefault)
@@ -85,34 +90,44 @@ public class ClothScreenProvider {
         ConfigCategory gp = builder.getOrCreateCategory(localized(
                 "option", "griefprevention"));
 
-        gp.addEntry(eb.startStrField(localized("option", "command"),
+        gp.addEntry(eb.startStrField(localized("option", "griefprevention.command"),
                         config.gpSettings.claimListCommand)
+                .setTooltip(localized("option", "griefprevention.command.tooltip"))
                 .setDefaultValue(Config.GriefPreventionSettings.claimListCommandDefault)
                 .setSaveConsumer(var -> config.gpSettings.claimListCommand = var)
                 .build());
 
-        gp.addEntry(eb.startStrField(localized("option", "firstPattern"),
+        gp.addEntry(eb.startTextDescription(localized("option", "griefprevention.description"))
+                .build());
+
+        gp.addEntry(eb.startStrField(localized("option", "griefprevention.firstPattern"),
                         config.gpSettings.firstLinePattern)
+                .setTooltip(localized("option", "griefprevention.firstPattern.tooltip"))
                 .setDefaultValue(Config.GriefPreventionSettings.firstLinePatternDefault)
                 .setSaveConsumer(var -> config.gpSettings.firstLinePattern = var)
                 .build());
 
-        gp.addEntry(eb.startStrField(localized("option", "claimPattern"),
+        gp.addEntry(eb.startStrField(localized("option", "griefprevention.claimPattern"),
                         config.gpSettings.claimLinePattern)
+                .setTooltip(localized("option", "griefprevention.claimPattern.tooltip"))
                 .setDefaultValue(Config.GriefPreventionSettings.claimLinePatternDefault)
                 .setSaveConsumer(var -> config.gpSettings.claimLinePattern = var)
                 .build());
 
-        gp.addEntry(eb.startStrList(localized("option", "ignoredPattern"),
-                        config.gpSettings.ignoredLinePatterns)
-                .setDefaultValue(Config.GriefPreventionSettings.ignoredLinePatternsDefault)
-                .setSaveConsumer(var -> config.gpSettings.ignoredLinePatterns = var)
-                .build());
-
-        gp.addEntry(eb.startStrList(localized("option", "endingPattern"),
+        gp.addEntry(eb.startStrList(localized("option", "griefprevention.endingPattern"),
                         config.gpSettings.endingLinePatterns)
+                .setTooltip(localized("option", "griefprevention.endingPattern.tooltip"))
+                .setExpanded(true)
                 .setDefaultValue(Config.GriefPreventionSettings.endingLinePatternsDefault)
                 .setSaveConsumer(var -> config.gpSettings.endingLinePatterns = var)
+                .build());
+
+        gp.addEntry(eb.startStrList(localized("option", "griefprevention.ignoredPattern"),
+                        config.gpSettings.ignoredLinePatterns)
+                .setTooltip(localized("option", "griefprevention.ignoredPattern.tooltip"))
+                .setExpanded(true)
+                .setDefaultValue(Config.GriefPreventionSettings.ignoredLinePatternsDefault)
+                .setSaveConsumer(var -> config.gpSettings.ignoredLinePatterns = var)
                 .build());
 
         ConfigCategory ac = builder.getOrCreateCategory(localized(
