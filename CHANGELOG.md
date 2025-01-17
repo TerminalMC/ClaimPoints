@@ -3,6 +3,7 @@
 ## 2.0.5
 
 - Made scanner feedback translatable
+- Updated Russian translation (rfin0)
 
 ## 2.0.4
 
