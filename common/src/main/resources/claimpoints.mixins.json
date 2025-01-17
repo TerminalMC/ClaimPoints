@@ -7,7 +7,9 @@
   "mixins": [
   ],
   "client": [
-    "MixinChatComponent"
+    "MixinChatComponent",
+    "MixinClientPacketListener",
+    "MixinConnectScreen"
   ],
   "server": [
   ],

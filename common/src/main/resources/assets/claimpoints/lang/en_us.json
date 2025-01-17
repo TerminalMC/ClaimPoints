@@ -16,5 +16,14 @@
   "option.claimpoints.firstPattern": "First line pattern",
   "option.claimpoints.claimPattern": "Claim line pattern",
   "option.claimpoints.ignoredPattern": "Ignored line patterns",
-  "option.claimpoints.endingPattern": "Ending line patterns"
+  "option.claimpoints.endingPattern": "Ending line patterns",
+
+  "option.claimpoints.autocommands": "AutoCommands",
+  "option.claimpoints.autocommands.commandDelay": "Command delay",
+  "option.claimpoints.autocommands.commandDelay.tooltip": "Time between joining a server and running the first command. If commands are causing errors, try increasing this.",
+  "option.claimpoints.autocommands.commandDelay.value": "%s sec",
+  "option.claimpoints.autocommands.servers": "Server addresses",
+  "option.claimpoints.autocommands.servers.tooltip": "List of IPs of servers on which to send commands.",
+  "option.claimpoints.autocommands.commands": "Commands",
+  "option.claimpoints.autocommands.commands.tooltip": "List of commands to run on joining a server from the list above."
 }

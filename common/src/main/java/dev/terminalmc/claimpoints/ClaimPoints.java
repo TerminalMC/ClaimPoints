@@ -17,12 +17,14 @@
 package dev.terminalmc.claimpoints;
 
 import dev.terminalmc.claimpoints.config.Config;
+import dev.terminalmc.claimpoints.util.CommandUtil;
 import dev.terminalmc.claimpoints.util.ModLogger;
 import dev.terminalmc.claimpoints.util.ChatScanner;
 import dev.terminalmc.claimpoints.xaero.WaypointManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -38,6 +40,7 @@ public class ClaimPoints {
             .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
             .withStyle(ChatFormatting.GRAY);
 
+    public static @Nullable String lastConnectedIp = null;
     public static WaypointManager waypointManager = null;
     public static List<String> waypointColorNames = null;
 
@@ -48,6 +51,7 @@ public class ClaimPoints {
     }
 
     public static void onEndTick(Minecraft mc) {
+        CommandUtil.tick(mc);
         ChatScanner.checkStop();
     }
 

@@ -115,6 +115,33 @@ public class ClothScreenProvider {
                 .setSaveConsumer(var -> config.gpSettings.endingLinePatterns = var)
                 .build());
 
+        ConfigCategory ac = builder.getOrCreateCategory(localized(
+                "option", "autocommands"));
+
+        ac.addEntry(eb.startIntSlider(localized("option", "autocommands.commandDelay"), 
+                        config.acSettings.commandDelay, 1, 60)
+                .setTooltip(localized("option", "autocommands.commandDelay.tooltip"))
+                .setDefaultValue(Config.AutoCommandSettings.commandDelayDefault)
+                .setSaveConsumer(val -> config.acSettings.commandDelay = val)
+                .setTextGetter(val -> localized("option", "autocommands.commandDelay.value", val))
+                .build());
+
+        ac.addEntry(eb.startStrList(localized("option", "autocommands.servers"),
+                        config.acSettings.servers)
+                .setTooltip(localized("option", "autocommands.servers.tooltip"))
+                .setExpanded(true)
+                .setDefaultValue(Config.AutoCommandSettings.serversDefault)
+                .setSaveConsumer(var -> config.acSettings.servers = var)
+                .build());
+
+        ac.addEntry(eb.startStrList(localized("option", "autocommands.commands"),
+                        config.acSettings.commands)
+                .setTooltip(localized("option", "autocommands.commands.tooltip"))
+                .setExpanded(true)
+                .setDefaultValue(Config.AutoCommandSettings.commandsDefault)
+                .setSaveConsumer(var -> config.acSettings.commands = var)
+                .build());
+
         return builder.build();
     }
 }

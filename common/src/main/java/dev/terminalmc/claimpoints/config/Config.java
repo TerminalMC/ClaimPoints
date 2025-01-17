@@ -49,6 +49,11 @@ public class Config {
         return Config.get().gpSettings;
     }
 
+    public final AutoCommandSettings acSettings = new AutoCommandSettings();
+    public static AutoCommandSettings acSettings() {
+        return Config.get().acSettings;
+    }
+
     public static class ClaimPointSettings {
         public static final String nameFormatDefault = "CP (%d)";
         public String nameFormat = nameFormatDefault;
@@ -90,6 +95,19 @@ public class Config {
         );
         public List<String> endingLinePatterns = new ArrayList<>(endingLinePatternsDefault);
         public transient List<Pattern> endingLinesCompiled;
+    }
+    
+    public static class AutoCommandSettings {
+        public static final int commandDelayDefault = 1;
+        public int commandDelay = commandDelayDefault;
+        
+        public static final List<String> serversDefault = List.of();
+        public List<String> servers = new ArrayList<>(serversDefault);
+
+        public static final List<String> commandsDefault = List.of(
+                "/cp worlds"
+        );
+        public List<String> commands = new ArrayList<>(commandsDefault);
     }
 
     // Verification
