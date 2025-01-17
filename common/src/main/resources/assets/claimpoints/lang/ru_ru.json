@@ -47,6 +47,6 @@
   "option.claimpoints.waypoints.color": "Цвет отметки",
   "option.claimpoints.waypoints.color.tooltip": "The color code for claim waypoint icons.",
   "option.claimpoints.waypoints.nameFormat": "Формат имени отметки",
-  "option.claimpoints.waypoints.nameFormat.error": "Формат имени должен содержать %d для размера участка",
+  "option.claimpoints.waypoints.nameFormat.error": "Формат имени должен содержать %%\u200Cd для размера участка",
   "option.claimpoints.waypoints.nameFormat.tooltip": "The format for claim waypoint names. Must contain %%\u200Cd for the claim size."
 }

@@ -47,6 +47,6 @@
   "option.claimpoints.waypoints.color": "路径点颜色",
   "option.claimpoints.waypoints.color.tooltip": "The color code for claim waypoint icons.",
   "option.claimpoints.waypoints.nameFormat": "路径点名称格式",
-  "option.claimpoints.waypoints.nameFormat.error": "名称格式必须包含%d以表示声明大小",
+  "option.claimpoints.waypoints.nameFormat.error": "名称格式必须包含%%\u200Cd以表示声明大小",
   "option.claimpoints.waypoints.nameFormat.tooltip": "The format for claim waypoint names. Must contain %%\u200Cd for the claim size."
 }
