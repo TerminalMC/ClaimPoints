@@ -1,8 +1,8 @@
 {
-  "claimpoints.name": "claim waypoints",
+  "claimpoints.name": "ClaimPoints",
   "message.claimpoints.command.help.add": "Adds the northwest-corner coordinate of all claims in the specified GriefPrevention world as Xaero's Minimap waypoints in the active waypoint list.",
   "message.claimpoints.command.help.clean": "Removes all claim waypoints in the active waypoint list, that do not match a claim in the specified world.",
-  "message.claimpoints.command.help.update": "Combines /cp add <world> and /cp clean <world>, and also updates ClaimPoint size indicators.",
+  "message.claimpoints.command.help.update": "Combines /cp add <world> and /cp clean <world>, and also updates claim waypoint size indicators.",
   "message.claimpoints.command.help.waypoints.clear": "Permanently deletes all claim waypoints in the active waypoint list.",
   "message.claimpoints.command.help.waypoints.hide": "Disables (hides) all claim waypoints in the active waypoint list.",
   "message.claimpoints.command.help.waypoints.set.alias": "Sets the alias (symbol) of all claim waypoints to the specified value.",
