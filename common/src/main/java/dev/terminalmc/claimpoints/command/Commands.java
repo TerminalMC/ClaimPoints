@@ -220,13 +220,7 @@ public class Commands<S> extends CommandDispatcher<S> {
         send(msg);
         return Command.SINGLE_SUCCESS;
     }
-
-    public static void sendWithPrefix(String content) {
-        MutableComponent message = ClaimPoints.PREFIX.copy();
-        message.append(content);
-        send(message);
-    }
-
+    
     public static void sendWithPrefix(Component content) {
         MutableComponent message = ClaimPoints.PREFIX.copy();
         message.append(content);

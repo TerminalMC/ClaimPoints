@@ -22,6 +22,7 @@ import dev.terminalmc.claimpoints.command.Commands;
 import dev.terminalmc.claimpoints.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +34,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import static dev.terminalmc.claimpoints.util.Localization.localized;
 
 /**
  * ClaimPoints obtains information about claim-worlds and claims by sending
@@ -113,9 +116,8 @@ public class ChatScanner {
 
     private static void stopScanInvalid() {
         stopScan();
-        Commands.sendWithPrefix("Unrecognized message found while waiting for " +
-                "GriefPrevention message. If the claim list appears in chat, you need to adjust " +
-                "the regex patterns in ClaimPoints config to capture it.");
+        Commands.sendWithPrefix(localized("message", "scanner.unknownMessage")
+                .append(" ").append(localized("message", "scanner.editConfig")));
     }
 
     /**
@@ -220,18 +222,16 @@ public class ChatScanner {
      */
     private static void handleWorlds() {
         if (worlds.isEmpty()) {
-            Commands.sendWithPrefix("No worlds found using command '/" +
-                    Config.gpSettings().claimListCommand +
-                    "'. That might be the wrong command, or you might not have any claims. " +
-                    "If the claim list appears in chat, you need to adjust " +
-                    "the regex patterns in ClaimPoints config to capture it.");
+            Commands.sendWithPrefix(localized("message", "scanner.noWorlds", 
+                    Config.gpSettings().claimListCommand)
+                    .append(" ").append(localized("message", "scanner.editConfig")));
         } else {
-            StringBuilder sb = new StringBuilder("Claim worlds (" + worlds.size() + "):");
+            MutableComponent msg = localized("message", "scanner.worlds", worlds.size());
             for (String world : worlds) {
-                sb.append("\n  ");
-                sb.append(world);
+                msg.append("\n  ");
+                msg.append(world);
             }
-            Commands.sendWithPrefix(sb.toString());
+            Commands.sendWithPrefix(msg);
         }
     }
 
@@ -318,27 +318,18 @@ public class ChatScanner {
      */
     private static void addClaimPoints() {
         if (claims.isEmpty()) {
-            Commands.sendWithPrefix(Component.empty()
-                    .append(Component.literal("No claims found for '" + world + "'. Use "))
-                    .append(Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA))
-                    .append(Component.literal(" to list GriefPrevention worlds in which you " +
-                            "have active claims.")));
+            Commands.sendWithPrefix(localized("message", "scanner.noClaims", world,
+                    Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA)));
         }
         else {
             int added = ClaimPoints.waypointManager.addClaimPoints(claims);
-            StringBuilder sb = new StringBuilder("Added ");
-            sb.append(added);
-            sb.append(added == 1 ? " claim from '" : " claims from '");
-            sb.append(world);
-            sb.append("' to the active waypoint list.");
+            MutableComponent msg = localized("message", "scanner.added", added, world);
             int skipped = claims.size() - added;
             if (skipped > 0) {
-                sb.append(" Skipped ");
-                sb.append(skipped);
-                sb.append(skipped == 1 ? " claim that already has a ClaimPoint." :
-                        " claims that already have ClaimPoints.");
+                msg.append(" ");
+                msg.append(localized("message", "scanner.skipped", skipped));
             }
-            Commands.sendWithPrefix(sb.toString());
+            Commands.sendWithPrefix(msg);
         }
         claims.clear();
     }
@@ -353,13 +344,7 @@ public class ChatScanner {
      */
     private static void cleanClaimPoints() {
         int removed = ClaimPoints.waypointManager.cleanClaimPoints(claims);
-        StringBuilder sb = new StringBuilder("Removed ");
-        sb.append(removed);
-        sb.append(removed == 1 ? " ClaimPoint" : " ClaimPoints");
-        sb.append(" not matching a claim in '");
-        sb.append(world);
-        sb.append("' from the active waypoint list.");
-        Commands.sendWithPrefix(sb.toString());
+        Commands.sendWithPrefix(localized("message", "scanner.removed", removed, world));
         claims.clear();
     }
 
@@ -377,27 +362,15 @@ public class ChatScanner {
      */
     private static void updateClaimPoints() {
         if (claims.isEmpty()) {
-            Commands.sendWithPrefix(Component.empty()
-                    .append(Component.literal("No claims found for '" + world + "'. Use "))
-                    .append(Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA))
-                    .append(Component.literal(" to list GriefPrevention worlds in which you " +
-                            "have active claims, or use /cp clean <world> to remove ClaimPoints.")));
+            Commands.sendWithPrefix(localized("message", "scanner.noClaims", world,
+                    Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA))
+                    .append(" ").append(localized("message", "scanner.noClaims.remove", 
+                            Component.literal("/cp clean <world>").withStyle(ChatFormatting.DARK_AQUA))));
         }
         else {
             int[] totals = ClaimPoints.waypointManager.updateClaimPoints(claims);
-            StringBuilder sb = new StringBuilder("Added ");
-            sb.append(totals[0]);
-            sb.append(totals[0] == 1 ? " new ClaimPoint" : " new ClaimPoints");
-            sb.append(" from '");
-            sb.append(world);
-            sb.append("', updated ");
-            sb.append(totals[1]);
-            sb.append(totals[1] == 1 ? " ClaimPoint size" : " ClaimPoint sizes");
-            sb.append(", and removed ");
-            sb.append(totals[2]);
-            sb.append(totals[2] == 1 ? " stray ClaimPoint" : " stray ClaimPoints");
-            sb.append(" from the active waypoint list.");
-            Commands.sendWithPrefix(sb.toString());
+            Commands.sendWithPrefix(localized("message", "scanner.updated", 
+                    totals[0], world, totals[1], totals[2]));
         }
         claims.clear();
     }

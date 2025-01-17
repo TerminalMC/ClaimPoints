@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.5
+
+- Made scanner feedback translatable
+
 ## 2.0.4
 
 - Fixed some minor issues
