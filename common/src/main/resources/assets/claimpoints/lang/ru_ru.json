@@ -2,7 +2,7 @@
   "claimpoints.name": "ClaimPoints",
   "message.claimpoints.command.help.add": "Добавляет координаты северо-западного угла всех участков в указанном мире GriefPrevention как точки маршрута Xaero's Minimap в активный список точек.",
   "message.claimpoints.command.help.clean": "Удаляет все точки участков в активном списке точек, которые не соответствуют участку в указанном мире.",
-  "message.claimpoints.command.help.update": "Объединяет команды /cp add <мир> и /cp clean <мир>, а также обновляет индикаторы размера участков в ClaimPoints.",
+  "message.claimpoints.command.help.update": "Объединяет команды /cp add <мир> и /cp clean <мир>, а также обновляет индикаторы размера точек участков.",
   "message.claimpoints.command.help.waypoints.clear": "Навсегда удаляет все точки участков в активном списке точек.",
   "message.claimpoints.command.help.waypoints.hide": "Отключает (скрывает) все точки участков в активном списке точек.",
   "message.claimpoints.command.help.waypoints.set.alias": "Устанавливает псевдоним (символ) для всех точек участков в указанное значение.",
