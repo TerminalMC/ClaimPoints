@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.6
+
+- Fixed version metadata
+
 ## 2.0.5
 
 - Made scanner feedback translatable
