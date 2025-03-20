@@ -27,14 +27,14 @@ repositories {
     }
     exclusiveContent {
         forRepositories(
-            maven {
-                name = "ParchmentMC"
-                url = "https://maven.parchmentmc.org"
-            },
-            maven {
-                name = "NeoForge"
-                url = "https://maven.neoforged.net/releases"
-            }
+                maven {
+                    name = "ParchmentMC"
+                    url = "https://maven.parchmentmc.org"
+                },
+                maven {
+                    name = "NeoForge"
+                    url = "https://maven.neoforged.net/releases"
+                }
         )
         filter { includeGroup("org.parchmentmc.data") }
     }
@@ -46,12 +46,17 @@ repositories {
         name = "Shedaniel"
         url = "https://maven.shedaniel.me"
     }
+    maven {
+        name = "isXander"
+        url = "https://maven.isxander.dev/releases"
+    }
 }
 
 // Declare capabilities on the outgoing configurations.
 // Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
 ["apiElements", "runtimeElements", "sourcesElements", /*"javadocElements"*/].each { variant ->
     configurations."$variant".outgoing {
+        capability("$group:${project.name}:$version")
         capability("$group:${base.archivesName.get()}:$version")
         capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
         capability("$group:$mod_id:$version")
@@ -63,13 +68,13 @@ repositories {
 
 sourcesJar {
     from(rootProject.file("LICENSE.txt")) {
-        rename { "${it}_${mod_name}" }
+        rename { "LICENSE_${mod_id}.txt" }
     }
 }
 
 jar {
     from(rootProject.file("LICENSE.txt")) {
-        rename { "${it}_${mod_name}" }
+        rename { "LICENSE_${mod_id}.txt" }
     }
 
     manifest {
@@ -100,8 +105,8 @@ processResources {
             "mod_owner": mod_owner,
             "mod_authors_list": asJsonList(mod_authors),
             "mod_authors_string": mod_authors.split(",").join(", "),
-            "mod_contributors_list": asJsonList("${mod_contributors},${mod_translators}"),
-            "mod_contributors_string": "${mod_contributors},${mod_translators}".split(",").join(", "),
+            "mod_contributors_list": asJsonList("${mod_contributors},${mod_translators},${mod_credits}"),
+            "mod_contributors_string": "${mod_contributors},${mod_translators},${mod_credits}".split(",").join(", "),
             "mod_license": mod_license,
             // Links
             "homepage_url": homepage_url,
@@ -128,9 +133,19 @@ processResources {
             "xm_versions_neoforge": xm_versions_neoforge,
             "modmenu_versions_fabric_list": asJsonList(modmenu_versions_fabric),
     ]
-    filesMatching(["pack.mcmeta", "*.mod.json", "META-INF/*mods.toml", "*.mixins.json"]) {
+
+    var jsonExpandProps = expandProps.collectEntries {
+        key, value -> [(key): value instanceof String ? value.replace("\n", "\\\\n") : value]
+    }
+
+    filesMatching(["pack.mcmeta", "*.mod.json", "*.mixins.json"]) {
+        expand jsonExpandProps
+    }
+
+    filesMatching(["META-INF/*.toml"]) {
         expand expandProps
     }
+
     inputs.properties(expandProps)
 }
 
