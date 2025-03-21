@@ -3,6 +3,7 @@
 ## 2.0.6
 
 - Fixed version metadata
+- Added support for handling comma-formatted numbers
 
 ## 2.0.5
 

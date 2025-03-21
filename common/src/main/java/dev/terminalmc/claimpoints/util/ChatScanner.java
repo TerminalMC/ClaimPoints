@@ -47,6 +47,9 @@ import static dev.terminalmc.claimpoints.util.Localization.localized;
  * world name matches the user-provided world name.</p>
  */
 public class ChatScanner {
+    public static final String NOT_NUMBER_STRING = "(?![+\\-\\d]).";
+    public static final Pattern NOT_NUMBER_PATTERN = Pattern.compile(NOT_NUMBER_STRING);
+
     private enum ScanState {
         WAITING, READING, ENDING
     }
@@ -259,9 +262,9 @@ public class ChatScanner {
                 if (clMatcher.find()) {
                     // Valid claim message, parse the claim
                     if (clMatcher.group(1).equals(world)) {
-                        int x = Integer.parseInt(clMatcher.group(2));
-                        int z = Integer.parseInt(clMatcher.group(3));
-                        int blocks = Integer.parseInt(clMatcher.group(4));
+                        int x = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(2)).replaceAll(""));
+                        int z = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(3)).replaceAll(""));
+                        int blocks = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(4)).replaceAll(""));
                         claims.add(new Pair<>(new Vec2(x, z), blocks));
                     }
                     return true;
