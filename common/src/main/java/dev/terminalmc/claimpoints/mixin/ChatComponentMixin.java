@@ -16,27 +16,31 @@
 
 package dev.terminalmc.claimpoints.mixin;
 
-import dev.terminalmc.claimpoints.ClaimPoints;
-import dev.terminalmc.claimpoints.util.CommandUtil;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.protocol.game.ClientboundLoginPacket;
+import dev.terminalmc.claimpoints.compat.chat.ChatScanner;
+import net.minecraft.client.GuiMessageTag;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static dev.terminalmc.claimpoints.config.Config.acSettings;
+@Mixin(ChatComponent.class)
+public class ChatComponentMixin {
 
-@Mixin(ClientPacketListener.class)
-public abstract class MixinClientPacketListener {
     @Inject(
-            method = "handleLogin",
-            at = @At("RETURN")
+            method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V",
+            at = @At("HEAD"),
+            cancellable = true
     )
-    private void afterLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
-        if (acSettings().servers.contains(ClaimPoints.lastConnectedIp)) {
-            acSettings().commands.forEach((str) -> 
-                    CommandUtil.addCommand(str, acSettings().commandDelay * 20));
-        }
+    private void checkMessage(
+            Component message,
+            MessageSignature signature,
+            GuiMessageTag tag,
+            CallbackInfo ci
+    ) {
+        if (ChatScanner.tryScan(message))
+            ci.cancel();
     }
 }

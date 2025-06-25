@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.7
+
+- Updated to modern Minimap codebase
+
 ## 2.0.6
 
 - Fixed version metadata

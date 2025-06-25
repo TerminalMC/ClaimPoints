@@ -28,13 +28,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ConnectScreen.class)
-public class MixinConnectScreen {
+public class ConnectScreenMixin {
+
     @Inject(
             at = @At("HEAD"),
             method = "connect"
     )
-    private void connect(Minecraft client, ServerAddress address, ServerData data,
-                         TransferState transferState, CallbackInfo ci) {
+    private void connect(
+            Minecraft client,
+            ServerAddress address,
+            ServerData data,
+            TransferState transferState,
+            CallbackInfo ci
+    ) {
         ClaimPoints.lastConnectedIp = data.ip;
     }
 }

@@ -21,8 +21,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.terminalmc.claimpoints.ClaimPoints;
+import dev.terminalmc.claimpoints.compat.chat.ChatScanner;
 import dev.terminalmc.claimpoints.config.Config;
-import dev.terminalmc.claimpoints.util.ChatScanner;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -39,58 +39,85 @@ import static net.minecraft.commands.Commands.literal;
 
 @SuppressWarnings("unchecked")
 public class Commands<S> extends CommandDispatcher<S> {
-    public void register(Minecraft mc, CommandDispatcher<S> dispatcher, CommandBuildContext buildContext) {
-        dispatcher.register((LiteralArgumentBuilder<S>)literal(ClaimPoints.COMMAND_ALIAS)
-                .then(literal("help")
-                        .executes(ctx -> showHelp()))
-                .then(literal("waypoints")
-                        .then(literal("show")
-                                .executes(ctx -> showClaimPoints()))
-                        .then(literal("hide")
-                                .executes(ctx -> hideClaimPoints()))
-                        .then(literal("clear")
-                                .executes(ctx -> clearClaimPoints()))
-                        .then(literal("set")
-                                .then(literal("nameformat")
-                                        .then(argument("name format", StringArgumentType.greedyString())
-                                                .executes(ctx -> setNameFormat(StringArgumentType.getString(ctx, "name format")))))
-                                .then(literal("alias")
-                                        .then(argument("alias", StringArgumentType.greedyString())
-                                                .executes(ctx -> setAlias(StringArgumentType.getString(ctx, "alias")))))
-                                .then(literal("color")
-                                        .then(argument("color", StringArgumentType.greedyString())
-                                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ClaimPoints.waypointColorNames, builder)))
-                                                .executes(ctx -> setColor(StringArgumentType.getString(ctx, "color")))))))
-                .then(literal("worlds")
-                        .executes(ctx -> getWorlds()))
-                .then(literal("add")
-                        .then(argument("world name", StringArgumentType.greedyString())
-                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ChatScanner.getWorlds(), builder)))
-                                .executes(ctx -> addFrom(StringArgumentType.getString(ctx, "world name")))))
-                .then(literal("clean")
-                        .then(argument("world name", StringArgumentType.greedyString())
-                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ChatScanner.getWorlds(), builder)))
-                                .executes(ctx -> cleanFrom(StringArgumentType.getString(ctx, "world name")))))
-                .then(literal("update")
-                        .then(argument("world name", StringArgumentType.greedyString())
-                                .suggests(((context, builder) -> SharedSuggestionProvider.suggest(ChatScanner.getWorlds(), builder)))
-                                .executes(ctx -> updateFrom(StringArgumentType.getString(ctx, "world name"))))));
+
+    public void register(CommandDispatcher<S> dispatcher, CommandBuildContext buildContext) {
+        dispatcher.register((LiteralArgumentBuilder<S>) literal(ClaimPoints.COMMAND_ALIAS).then(
+                        literal("help").executes(ctx -> showHelp()))
+                .then(literal("waypoints").then(literal("show").executes(ctx -> showClaimPoints()))
+                        .then(literal("hide").executes(ctx -> hideClaimPoints()))
+                        .then(literal("clear").executes(ctx -> clearClaimPoints()))
+                        .then(literal("set").then(literal("nameformat").then(argument(
+                                        "name format",
+                                        StringArgumentType.greedyString()
+                                ).executes(ctx -> setNameFormat(StringArgumentType.getString(
+                                        ctx,
+                                        "name format"
+                                )))))
+                                .then(literal("alias").then(argument(
+                                        "alias",
+                                        StringArgumentType.greedyString()
+                                ).executes(ctx -> setAlias(StringArgumentType.getString(
+                                        ctx,
+                                        "alias"
+                                )))))
+                                .then(literal("color").then(argument(
+                                        "color",
+                                        StringArgumentType.greedyString()
+                                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
+                                                ClaimPoints.waypointColorNames,
+                                                builder
+                                        )))
+                                        .executes(ctx -> setColor(StringArgumentType.getString(
+                                                ctx,
+                                                "color"
+                                        )))))))
+                .then(literal("worlds").executes(ctx -> getWorlds()))
+                .then(literal("add").then(argument(
+                        "world name",
+                        StringArgumentType.greedyString()
+                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
+                                ChatScanner.getWorlds(),
+                                builder
+                        )))
+                        .executes(ctx -> addFrom(StringArgumentType.getString(ctx, "world name")))))
+                .then(literal("clean").then(argument(
+                        "world name",
+                        StringArgumentType.greedyString()
+                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
+                                ChatScanner.getWorlds(),
+                                builder
+                        )))
+                        .executes(ctx -> cleanFrom(StringArgumentType.getString(
+                                ctx,
+                                "world name"
+                        )))))
+                .then(literal("update").then(argument(
+                        "world name",
+                        StringArgumentType.greedyString()
+                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
+                                ChatScanner.getWorlds(),
+                                builder
+                        )))
+                        .executes(ctx -> updateFrom(StringArgumentType.getString(
+                                ctx,
+                                "world name"
+                        ))))));
     }
 
     private static int showClaimPoints() {
-        int total = ClaimPoints.waypointManager.showClaimPoints();
+        int total = ClaimPoints.waypointManager.showAll();
         sendWithPrefix(localized("message", "waypoint.enabled", total));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int hideClaimPoints() {
-        int total = ClaimPoints.waypointManager.hideClaimPoints();
+        int total = ClaimPoints.waypointManager.hideAll();
         sendWithPrefix(localized("message", "waypoint.disabled", total));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int clearClaimPoints() {
-        int removed = ClaimPoints.waypointManager.clearClaimPoints();
+        int removed = ClaimPoints.waypointManager.clearAll();
         sendWithPrefix(localized("message", "waypoint.removed", removed));
         return Command.SINGLE_SUCCESS;
     }
@@ -98,15 +125,15 @@ public class Commands<S> extends CommandDispatcher<S> {
     private static int setNameFormat(String nameFormat) {
         int indexOfSize = nameFormat.indexOf("%d");
         if (indexOfSize != -1) {
-            ClaimPoints.waypointManager.setClaimPointNameFormat(nameFormat);
+            ClaimPoints.waypointManager.setNameFormat(nameFormat);
             Config.cpSettings().nameFormat = nameFormat;
-            Config.cpSettings().namePattern = "^" + Pattern.quote(nameFormat.substring(0, indexOfSize)) +
-                    "(\\d+)" + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
+            Config.cpSettings().namePattern =
+                    "^" + Pattern.quote(nameFormat.substring(0, indexOfSize)) + "(\\d+)"
+                            + Pattern.quote(nameFormat.substring(indexOfSize + 2)) + "$";
             Config.cpSettings().nameCompiled = Pattern.compile(Config.cpSettings().namePattern);
             Config.save();
             sendWithPrefix(localized("message", "waypoint.nameFormat.set", nameFormat));
-        }
-        else {
+        } else {
             sendWithPrefix(localized("message", "waypoint.nameFormat.error", nameFormat));
         }
 
@@ -115,7 +142,7 @@ public class Commands<S> extends CommandDispatcher<S> {
 
     private static int setAlias(String alias) {
         alias = alias.length() <= 2 ? alias : alias.substring(0, 2);
-        ClaimPoints.waypointManager.setClaimPointAlias(alias);
+        ClaimPoints.waypointManager.setInitials(alias);
         Config.cpSettings().alias = alias;
         Config.save();
 
@@ -127,9 +154,8 @@ public class Commands<S> extends CommandDispatcher<S> {
         int index = ClaimPoints.waypointColorNames.indexOf(color);
         if (index == -1) {
             sendWithPrefix(localized("message", "waypoint.color.error", color));
-        }
-        else {
-            ClaimPoints.waypointManager.setClaimPointColor(index);
+        } else {
+            ClaimPoints.waypointManager.setColor(index);
             Config.cpSettings().color = color;
             Config.cpSettings().colorIdx = index;
             Config.save();
@@ -205,22 +231,25 @@ public class Commands<S> extends CommandDispatcher<S> {
         msg.append(localized("message", "command.help.waypoints.clear").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
-        msg.append(Component.literal("/cp waypoints set nameformat <name format>\n").withStyle(ChatFormatting.DARK_AQUA));
+        msg.append(Component.literal("/cp waypoints set nameformat <name format>\n")
+                .withStyle(ChatFormatting.DARK_AQUA));
         msg.append(localized("message", "command.help.waypoints.set.nameFormat").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
-        msg.append(Component.literal("/cp waypoints set alias <alias>\n").withStyle(ChatFormatting.DARK_AQUA));
+        msg.append(Component.literal("/cp waypoints set alias <alias>\n")
+                .withStyle(ChatFormatting.DARK_AQUA));
         msg.append(localized("message", "command.help.waypoints.set.alias").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("-----------------------------------------------\n");
-        msg.append(Component.literal("/cp waypoints set color <color>\n").withStyle(ChatFormatting.DARK_AQUA));
+        msg.append(Component.literal("/cp waypoints set color <color>\n")
+                .withStyle(ChatFormatting.DARK_AQUA));
         msg.append(localized("message", "command.help.waypoints.set.color").append("\n")
                 .withStyle(ChatFormatting.GRAY));
         msg.append("===============================================\n");
         send(msg);
         return Command.SINGLE_SUCCESS;
     }
-    
+
     public static void sendWithPrefix(Component content) {
         MutableComponent message = ClaimPoints.PREFIX.copy();
         message.append(content);

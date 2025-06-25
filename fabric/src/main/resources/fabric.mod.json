@@ -1,13 +1,22 @@
 {
   "schemaVersion": 1,
-  "version": "${mod_version}",
   "id": "${mod_id}",
+  "version": "${mod_version}",
   "name": "${mod_name}",
-  "description": "${mod_description}",
+  "description": "${mod_description_fabric}",
   "icon": "${mod_icon}",
-  "authors": [$mod_authors_list],
-  "contributors": [$mod_contributors_list],
+  "authors": [
+    $mod_authors_list
+  ],
+  "contributors": [
+    $mod_contributors_list
+  ],
   "license": "${mod_license}",
+  "contact": {
+    "homepage": "${homepage_url}",
+    "sources": "${sources_url}",
+    "issues": "${issues_url}"
+  },
 
   "environment": "client",
 
@@ -15,9 +24,13 @@
 
   "entrypoints": {
     "main": [],
-    "client": ["${mod_group}.${mod_id}.${mod_name}Fabric"],
+    "client": [
+      "dev.terminalmc.claimpoints.ClaimPointsFabric"
+    ],
     "server": [],
-    "modmenu": ["${mod_group}.${mod_id}.gui.screen.ModMenuIntegration"]
+    "modmenu": [
+      ${fabric_modmenu_entrypoint}
+    ]
   },
 
   "mixins": [
@@ -28,28 +41,27 @@
   "accessWidener": "${mod_id}.accesswidener",
 
   "depends": {
+    ${fabric_depends}
     "java": [$java_versions_fabric_list],
     "minecraft": [$minecraft_versions_fabric_list],
     "fabricloader": [$fabric_loader_versions_list],
-    "fabric-api": [$fabric_api_versions_list],
-    "xaerominimap": [$xm_versions_fabric_list]
+    "fabric-api": [$fabric_api_versions_list]
   },
 
   "recommends": {
-    "modmenu": [$modmenu_versions_fabric_list],
-    "cloth-config": [$clothconfig_versions_fabric_list]
+    ${fabric_recommends}
   },
 
-  "suggests": {},
+  "suggests": {
+    ${fabric_suggests}
+  },
 
-  "conflicts": {},
+  "conflicts": {
+    ${fabric_conflicts}
+  },
 
-  "breaks": {},
-
-  "contact": {
-    "homepage": "${homepage_url}",
-    "sources": "${sources_url}",
-    "issues": "${issues_url}"
+  "breaks": {
+    ${fabric_breaks}
   },
 
   "custom": {
@@ -61,7 +73,7 @@
     "formatSpec": {
       "links": {
         "formatSpec": "https://fabricmc.net/wiki/documentation:fabric_mod_json_spec",
-        "formatExample": "https://github.com/FabricMC/fabric-example-mod"
+        "formatExample": "https://github.com/FabricMC/fabric-example-mod/blob/HEAD/src/main/resources/fabric.mod.json"
       }
     }
   }

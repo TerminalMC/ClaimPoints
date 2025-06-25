@@ -21,19 +21,26 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.Minecraft;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 
 public class ClaimPointsFabric implements ClientModInitializer {
+
     @Override
     public void onInitializeClient() {
-        // Commands
+        // Register keybinds
+        ClaimPoints.KEYBINDS.forEach(KeyBindingHelper::registerKeyBinding);
+
+        // Register client commands
         ClientCommandRegistrationCallback.EVENT.register(((dispatcher, buildContext) ->
-                new Commands<FabricClientCommandSource>().register(Minecraft.getInstance(), dispatcher, buildContext)));
+                new Commands<FabricClientCommandSource>().register(
+                        dispatcher,
+                        buildContext
+                )));
 
-        // Tick events
-        ClientTickEvents.END_CLIENT_TICK.register(ClaimPoints::onEndTick);
+        // Register client after-tick event
+        ClientTickEvents.END_CLIENT_TICK.register(ClaimPoints::afterClientTick);
 
-        // Main initialization
+        // Initialize client
         ClaimPoints.init();
     }
 }

@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package dev.terminalmc.claimpoints.gui.screen;
+package dev.terminalmc.claimpoints.compat;
 
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
+public record Vec2i(int x, int z) {
 
-public class ModMenuIntegration implements ModMenuApi {
     @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return ConfigScreenProvider::getConfigScreen;
+    public int x() {
+        return x;
+    }
+
+    @Override
+    public int z() {
+        return z;
     }
 }

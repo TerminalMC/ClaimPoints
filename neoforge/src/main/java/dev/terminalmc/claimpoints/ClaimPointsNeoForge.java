@@ -27,31 +27,62 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
-@Mod(value = ClaimPoints.MOD_ID, dist = Dist.CLIENT)
+@Mod(
+        value = ClaimPoints.MOD_ID,
+        dist = Dist.CLIENT
+)
+@EventBusSubscriber(
+        modid = ClaimPoints.MOD_ID,
+        bus = EventBusSubscriber.Bus.MOD,
+        value = Dist.CLIENT
+)
 public class ClaimPointsNeoForge {
-    public ClaimPointsNeoForge() {
-        // Config screen
-        ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class,
-                () -> (mc, parent) -> ConfigScreenProvider.getConfigScreen(parent));
 
-        // Main initialization
+    public ClaimPointsNeoForge() {
+        // Register config screen
+        ModLoadingContext.get().registerExtensionPoint(
+                IConfigScreenFactory.class,
+                () -> (mc, parent) -> ConfigScreenProvider.getConfigScreen(parent)
+        );
+
+        // Initialize client
         ClaimPoints.init();
     }
 
-    @EventBusSubscriber(modid = ClaimPoints.MOD_ID, value = Dist.CLIENT)
+    /**
+     * Registers all keybinds.
+     */
+    @SubscribeEvent
+    static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        ClaimPoints.KEYBINDS.forEach(event::register);
+    }
+
+    @EventBusSubscriber(
+            modid = ClaimPoints.MOD_ID,
+            value = Dist.CLIENT
+    )
     static class ClientEventHandler {
-        // Commands
+
+        /**
+         * Registers all client-side commands.
+         */
         @SubscribeEvent
         static void registerClientCommands(RegisterClientCommandsEvent event) {
-            new Commands<CommandSourceStack>().register(Minecraft.getInstance(), event.getDispatcher(), event.getBuildContext());
+            new Commands<CommandSourceStack>().register(
+                    event.getDispatcher(),
+                    event.getBuildContext()
+            );
         }
 
-        // Tick events
+        /**
+         * Registers client after-tick event.
+         */
         @SubscribeEvent
-        public static void clientTickEvent(ClientTickEvent.Post event) {
-            ClaimPoints.onEndTick(Minecraft.getInstance());
+        public static void registerAfterClientTick(ClientTickEvent.Post event) {
+            ClaimPoints.afterClientTick(Minecraft.getInstance());
         }
     }
 }

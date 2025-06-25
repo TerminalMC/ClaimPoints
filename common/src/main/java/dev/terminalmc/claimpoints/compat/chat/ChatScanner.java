@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package dev.terminalmc.claimpoints.util;
+package dev.terminalmc.claimpoints.compat.chat;
 
-import com.mojang.datafixers.util.Pair;
 import dev.terminalmc.claimpoints.ClaimPoints;
 import dev.terminalmc.claimpoints.command.Commands;
+import dev.terminalmc.claimpoints.compat.Claim;
+import dev.terminalmc.claimpoints.compat.Vec2i;
+import dev.terminalmc.claimpoints.compat.minimap.WaypointResult;
 import dev.terminalmc.claimpoints.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,23 +39,29 @@ import java.util.stream.Stream;
 import static dev.terminalmc.claimpoints.util.Localization.localized;
 
 /**
- * ClaimPoints obtains information about claim-worlds and claims by sending
- * GriefPrevention commands, then scanning chat for the result.
+ * ClaimPoints obtains information about claim-worlds and claims by sending GriefPrevention
+ * commands, then scanning chat for the result.
  *
  * <p>There are two types of scan, both of which use the claim-list command:
- * A world scan reads the list of claims, and identifies all unique world names.
- * A claim scan reads the list of claims, and parses all claims for which the
- * world name matches the user-provided world name.</p>
+ * A world scan reads the list of claims, and identifies all unique world names. A claim scan reads
+ * the list of claims, and parses all claims for which the world name matches the user-provided
+ * world name.</p>
  */
 public class ChatScanner {
+
     public static final String NOT_NUMBER_STRING = "(?![+\\-\\d]).";
     public static final Pattern NOT_NUMBER_PATTERN = Pattern.compile(NOT_NUMBER_STRING);
 
     private enum ScanState {
-        WAITING, READING, ENDING
+        WAITING,
+        READING,
+        ENDING
     }
+
     public enum ScanType {
-        ADD, CLEAN, UPDATE
+        ADD,
+        CLEAN,
+        UPDATE
     }
 
     private static @Nullable String world;
@@ -64,7 +71,7 @@ public class ChatScanner {
 
     private static ScanType scanType;
     private static final Set<String> worlds = new HashSet<>();
-    private static final List<Pair<Vec2,Integer>> claims = new ArrayList<>();
+    private static final List<Claim> claims = new ArrayList<>();
 
     public static Stream<String> getWorlds() {
         return worlds.stream();
@@ -98,9 +105,9 @@ public class ChatScanner {
     }
 
     /**
-     * Scans are given a TTL after each non-final message read, to guard against
-     * being left 'hanging' due to a chat anomaly. This method checks the TTL
-     * and stops the scan if it has expired.
+     * Scans are given a TTL after each non-final message read, to guard against being left
+     * 'hanging' due to a chat anomaly. This method checks the TTL and stops the scan if it has
+     * expired.
      */
     public static void checkStop() {
         if (scanning && System.currentTimeMillis() > stopTime) {
@@ -119,8 +126,8 @@ public class ChatScanner {
 
     private static void stopScanInvalid() {
         stopScan();
-        Commands.sendWithPrefix(localized("message", "scanner.unknownMessage")
-                .append(" ").append(localized("message", "scanner.editConfig")));
+        Commands.sendWithPrefix(localized("message", "scanner.unknownMessage").append(" ")
+                .append(localized("message", "scanner.editConfig")));
     }
 
     /**
@@ -149,7 +156,8 @@ public class ChatScanner {
      * @return true if the message should be hidden, false otherwise.
      */
     public static boolean tryScan(Component message) {
-        if (!scanning) return false;
+        if (!scanning)
+            return false;
         return scan(message);
     }
 
@@ -167,18 +175,18 @@ public class ChatScanner {
 
     /**
      * Parses the message as part of a claim world scan.
+     *
      * @return true if the message should be hidden, false otherwise.
      */
     private static boolean worldScan(Component message) {
         String content = message.getString();
-        switch(scanState) {
+        switch (scanState) {
             case WAITING -> {
                 if (Config.gpSettings().firstLineCompiled.matcher(content).find()) {
                     // Valid first message, start reading
                     scanState = ScanState.READING;
                     return true;
-                }
-                else {
+                } else {
                     // Unrecognized message, cancel scan
                     stopScanInvalid();
                     return false;
@@ -190,12 +198,10 @@ public class ChatScanner {
                     // Valid claim message, add the world
                     worlds.add(clMatcher.group(1));
                     return true;
-                }
-                else if (anyMatches(content, Config.gpSettings().ignoredLinesCompiled)) {
+                } else if (anyMatches(content, Config.gpSettings().ignoredLinesCompiled)) {
                     // Recognized non-claim body message, ignore
                     return true;
-                }
-                else {
+                } else {
                     // Not a body message, process worlds and begin ending scan
                     scanState = ScanState.ENDING;
                     handleWorlds();
@@ -207,14 +213,15 @@ public class ChatScanner {
                 if (anyMatches(content, Config.gpSettings().endingLinesCompiled)) {
                     // Valid ending message, hide it
                     return true;
-                }
-                else {
+                } else {
                     // Unrecognized message, stop scan and do not hide it
                     stopScan();
                     return false;
                 }
             }
-            default -> {return false;} // Keep IDE happy
+            default -> {
+                return false;
+            } // Keep IDE happy
         }
     }
 
@@ -225,9 +232,12 @@ public class ChatScanner {
      */
     private static void handleWorlds() {
         if (worlds.isEmpty()) {
-            Commands.sendWithPrefix(localized("message", "scanner.noWorlds", 
-                    Config.gpSettings().claimListCommand)
-                    .append(" ").append(localized("message", "scanner.editConfig")));
+            Commands.sendWithPrefix(localized(
+                    "message",
+                    "scanner.noWorlds",
+                    Config.gpSettings().claimListCommand
+            ).append(" ")
+                    .append(localized("message", "scanner.editConfig")));
         } else {
             MutableComponent msg = localized("message", "scanner.worlds", worlds.size());
             for (String world : worlds) {
@@ -240,18 +250,18 @@ public class ChatScanner {
 
     /**
      * Parses the message as part of a claim scan.
+     *
      * @return true if the message should be hidden, false otherwise.
      */
     private static boolean claimScan(Component message) {
         String content = message.getString();
-        switch(scanState) {
+        switch (scanState) {
             case WAITING -> {
                 if (Config.gpSettings().firstLineCompiled.matcher(content).find()) {
                     // Valid first message, start reading
                     scanState = ScanState.READING;
                     return true;
-                }
-                else {
+                } else {
                     // Unrecognized message, cancel scan
                     stopScanInvalid();
                     return false;
@@ -262,18 +272,19 @@ public class ChatScanner {
                 if (clMatcher.find()) {
                     // Valid claim message, parse the claim
                     if (clMatcher.group(1).equals(world)) {
-                        int x = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(2)).replaceAll(""));
-                        int z = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(3)).replaceAll(""));
-                        int blocks = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(4)).replaceAll(""));
-                        claims.add(new Pair<>(new Vec2(x, z), blocks));
+                        int x = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(2))
+                                .replaceAll(""));
+                        int z = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(3))
+                                .replaceAll(""));
+                        int blocks = Integer.parseInt(NOT_NUMBER_PATTERN.matcher(clMatcher.group(4))
+                                .replaceAll(""));
+                        claims.add(new Claim(new Vec2i(x, z), blocks));
                     }
                     return true;
-                }
-                else if (anyMatches(content, Config.gpSettings().ignoredLinesCompiled)) {
+                } else if (anyMatches(content, Config.gpSettings().ignoredLinesCompiled)) {
                     // Recognized non-claim body message, ignore
                     return true;
-                }
-                else {
+                } else {
                     // Not a body message, process claims and begin ending scan
                     scanState = ScanState.ENDING;
                     handleClaims();
@@ -285,25 +296,25 @@ public class ChatScanner {
                 if (anyMatches(content, Config.gpSettings().endingLinesCompiled)) {
                     // Valid ending message, hide it
                     return true;
-                }
-                else {
+                } else {
                     // Unrecognized message, stop scan and do not hide it
                     stopScan();
                     return false;
                 }
             }
-            default -> {return false;} // Keep IDE happy
+            default -> {
+                return false;
+            } // Keep IDE happy
         }
     }
 
     /**
-     * Completes the action requested by the player, using the scanned claim
-     * list.
+     * Completes the action requested by the player, using the scanned claim list.
      *
      * <p>To be called immediately after scan completion.</p>
      */
     private static void handleClaims() {
-        switch(scanType) {
+        switch (scanType) {
             case ADD -> addClaimPoints();
             case CLEAN -> cleanClaimPoints();
             case UPDATE -> updateClaimPoints();
@@ -311,9 +322,8 @@ public class ChatScanner {
     }
 
     /**
-     * Adds all claims from the scanned claim list as waypoints (excluding those
-     * which already have waypoints) to the active waypoint list, and notifies
-     * the user.
+     * Adds all claims from the scanned claim list as waypoints (excluding those which already have
+     * waypoints) to the active waypoint list, and notifies the user.
      *
      * <p>Does not remove any waypoints.</p>
      *
@@ -321,11 +331,14 @@ public class ChatScanner {
      */
     private static void addClaimPoints() {
         if (claims.isEmpty()) {
-            Commands.sendWithPrefix(localized("message", "scanner.noClaims", world,
-                    Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA)));
-        }
-        else {
-            int added = ClaimPoints.waypointManager.addClaimPoints(claims);
+            Commands.sendWithPrefix(localized(
+                    "message",
+                    "scanner.noClaims",
+                    world,
+                    Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA)
+            ));
+        } else {
+            int added = ClaimPoints.waypointManager.add(claims);
             MutableComponent msg = localized("message", "scanner.added", added, world);
             int skipped = claims.size() - added;
             if (skipped > 0) {
@@ -338,42 +351,52 @@ public class ChatScanner {
     }
 
     /**
-     * Removes all claim waypoints not matching claims in the scanned claim list
-     * from the active waypoint list, and notifies the user.
+     * Removes all claim waypoints not matching claims in the scanned claim list from the active
+     * waypoint list, and notifies the user.
      *
      * <p>Does not add any waypoints.</p>
      *
      * <p>To be called immediately after scan completion.</p>
      */
     private static void cleanClaimPoints() {
-        int removed = ClaimPoints.waypointManager.cleanClaimPoints(claims);
+        int removed = ClaimPoints.waypointManager.clean(claims);
         Commands.sendWithPrefix(localized("message", "scanner.removed", removed, world));
         claims.clear();
     }
 
     /**
-     * Synchronizes the claim waypoints in the active waypoint list using the
-     * scanned claim list.
+     * Synchronizes the claim waypoints in the active waypoint list using the scanned claim list.
      *
      * <p>May add and/or remove waypoints.</p>
      *
      * <p>To be called immediately after scan completion.</p>
      *
      * <p>Note: If the scanned claim list is empty, does nothing. This is
-     * intended to guard against accidental deletion of claims due to e.g.
-     * incorrect world selection.</p>
+     * intended to guard against accidental deletion of claims due to e.g. incorrect world
+     * selection.</p>
      */
     private static void updateClaimPoints() {
         if (claims.isEmpty()) {
-            Commands.sendWithPrefix(localized("message", "scanner.noClaims", world,
-                    Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA))
-                    .append(" ").append(localized("message", "scanner.noClaims.remove", 
-                            Component.literal("/cp clean <world>").withStyle(ChatFormatting.DARK_AQUA))));
-        }
-        else {
-            int[] totals = ClaimPoints.waypointManager.updateClaimPoints(claims);
-            Commands.sendWithPrefix(localized("message", "scanner.updated", 
-                    totals[0], world, totals[1], totals[2]));
+            Commands.sendWithPrefix(localized(
+                    "message",
+                    "scanner.noClaims",
+                    world,
+                    Component.literal("/cp worlds").withStyle(ChatFormatting.DARK_AQUA)
+            ).append(" ").append(localized(
+                    "message",
+                    "scanner.noClaims.remove",
+                    Component.literal("/cp clean <world>").withStyle(ChatFormatting.DARK_AQUA)
+            )));
+        } else {
+            WaypointResult result = ClaimPoints.waypointManager.update(claims);
+            Commands.sendWithPrefix(localized(
+                    "message",
+                    "scanner.updated",
+                    result.added(),
+                    world,
+                    result.updated(),
+                    result.removed()
+            ));
         }
         claims.clear();
     }

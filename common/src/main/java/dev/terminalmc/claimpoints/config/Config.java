@@ -19,6 +19,7 @@ package dev.terminalmc.claimpoints.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.terminalmc.claimpoints.ClaimPoints;
+import dev.terminalmc.claimpoints.platform.Services;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class Config {
-    private static final Path DIR_PATH = Path.of("config");
+
+    private static final Path DIR_PATH = Services.PLATFORM.getConfigDir();
     private static final String FILE_NAME = ClaimPoints.MOD_ID + ".json";
     private static final String BACKUP_FILE_NAME = ClaimPoints.MOD_ID + ".unreadable.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -40,21 +42,25 @@ public class Config {
     // Options
 
     public final ClaimPointSettings cpSettings = new ClaimPointSettings();
+
     public static ClaimPointSettings cpSettings() {
         return Config.get().cpSettings;
     }
-    
+
     public final GriefPreventionSettings gpSettings = new GriefPreventionSettings();
+
     public static GriefPreventionSettings gpSettings() {
         return Config.get().gpSettings;
     }
 
     public final AutoCommandSettings acSettings = new AutoCommandSettings();
+
     public static AutoCommandSettings acSettings() {
         return Config.get().acSettings;
     }
 
     public static class ClaimPointSettings {
+
         public static final String nameFormatDefault = "CP (%d)";
         public String nameFormat = nameFormatDefault;
 
@@ -71,6 +77,7 @@ public class Config {
     }
 
     public static class GriefPreventionSettings {
+
         public static final String claimListCommandDefault = "claimlist";
         public String claimListCommand = claimListCommandDefault;
 
@@ -96,11 +103,12 @@ public class Config {
         public List<String> endingLinePatterns = new ArrayList<>(endingLinePatternsDefault);
         public transient List<Pattern> endingLinesCompiled;
     }
-    
+
     public static class AutoCommandSettings {
+
         public static final int commandDelayDefault = 1;
         public int commandDelay = commandDelayDefault;
-        
+
         public static final List<String> serversDefault = List.of();
         public List<String> servers = new ArrayList<>(serversDefault);
 
@@ -110,25 +118,62 @@ public class Config {
         public List<String> commands = new ArrayList<>(commandsDefault);
     }
 
-    // Verification
+    // Instance management
 
-    public void verify() {
+    private static Config instance = null;
+
+    public static Config get() {
+        if (instance == null) {
+            instance = Config.load();
+        }
+        return instance;
+    }
+
+    public static Config getAndSave() {
+        get();
+        save();
+        return instance;
+    }
+
+    public static Config resetAndSave() {
+        instance = new Config();
+        save();
+        return instance;
+    }
+
+    // Cleanup
+
+    private void cleanup() {
         int indexOfSize = cpSettings.nameFormat.indexOf("%d");
         if (indexOfSize == -1) {
-            throw new IllegalArgumentException("Name format '" + cpSettings.nameFormat +
-                    "' missing required sequence %d.");
-        }
-        else {
-            cpSettings.namePattern = "^" + Pattern.quote(cpSettings.nameFormat.substring(0, indexOfSize)) +
-                    "(\\d+)" + Pattern.quote(cpSettings.nameFormat.substring(indexOfSize + 2)) + "$";
+            ClaimPoints.LOG.warn(
+                    "Name format '{}' missing required sequence '%d'. Reverting to default.",
+                    cpSettings.nameFormat
+            );
+            cpSettings.nameFormat = ClaimPointSettings.nameFormatDefault;
+        } else {
+            cpSettings.namePattern = "^"
+                    + Pattern.quote(cpSettings.nameFormat.substring(0, indexOfSize))
+                    + "(\\d+)"
+                    + Pattern.quote(cpSettings.nameFormat.substring(indexOfSize + 2))
+                    + "$";
             cpSettings.nameCompiled = Pattern.compile(cpSettings.namePattern);
         }
         if (cpSettings.alias.length() > 2) {
-            throw new IllegalArgumentException("Alias '" + cpSettings.alias + "' is longer than 2 characters.");
+            ClaimPoints.LOG.warn(
+                    "Alias '{}' is longer than 2 characters. Reverting to default.",
+                    cpSettings.alias
+            );
+            cpSettings.alias = ClaimPointSettings.aliasDefault;
         }
         cpSettings.colorIdx = ClaimPoints.waypointColorNames.indexOf(cpSettings.color);
         if (cpSettings.colorIdx == -1) {
-            throw new IllegalArgumentException("Color '" + cpSettings.color + "' is not a valid waypoint color.");
+            ClaimPoints.LOG.warn(
+                    "Color '{}' is not a valid waypoint color. Reverting to default.",
+                    cpSettings.colorIdx
+            );
+            cpSettings.color = ClaimPointSettings.colorDefault;
+            cpSettings.colorIdx = ClaimPoints.waypointColorNames.indexOf(cpSettings.color);
         }
         gpSettings.firstLineCompiled = Pattern.compile(gpSettings.firstLinePattern);
         gpSettings.claimLineCompiled = Pattern.compile(gpSettings.claimLinePattern);
@@ -140,31 +185,6 @@ public class Config {
         for (String str : gpSettings.endingLinePatterns) {
             gpSettings.endingLinesCompiled.add(Pattern.compile(str));
         }
-    }
-
-    // Instance management
-
-    private static Config instance = null;
-
-    public static Config get() {
-        if (instance == null) {
-            instance = Config.load();
-            instance.verify();
-        }
-        return instance;
-    }
-
-    public static Config getAndSave() {
-        get().verify();
-        save();
-        return instance;
-    }
-
-    public static Config resetAndSave() {
-        instance = new Config();
-        instance.verify();
-        save();
-        return instance;
     }
 
     // Load and save
@@ -183,8 +203,12 @@ public class Config {
     }
 
     private static @Nullable Config load(Path file, Gson gson) {
-        try (InputStreamReader reader = new InputStreamReader(
-                new FileInputStream(file.toFile()), StandardCharsets.UTF_8)) {
+        try (
+                InputStreamReader reader = new InputStreamReader(
+                        new FileInputStream(file.toFile()),
+                        StandardCharsets.UTF_8
+                )
+        ) {
             return gson.fromJson(reader, Config.class);
         } catch (Exception e) {
             // Catch Exception as errors in deserialization may not fall under
@@ -197,30 +221,46 @@ public class Config {
     private static void backup() {
         try {
             ClaimPoints.LOG.warn("Copying {} to {}", FILE_NAME, BACKUP_FILE_NAME);
-            if (!Files.isDirectory(DIR_PATH)) Files.createDirectories(DIR_PATH);
+            if (!Files.isDirectory(DIR_PATH))
+                Files.createDirectories(DIR_PATH);
             Path file = DIR_PATH.resolve(FILE_NAME);
             Path backupFile = file.resolveSibling(BACKUP_FILE_NAME);
-            Files.move(file, backupFile, StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.move(
+                    file,
+                    backupFile,
+                    StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
         } catch (IOException e) {
             ClaimPoints.LOG.error("Unable to copy config file", e);
         }
     }
 
     public static void save() {
-        if (instance == null) return;
+        if (instance == null)
+            return;
+        instance.cleanup();
         try {
-            if (!Files.isDirectory(DIR_PATH)) Files.createDirectories(DIR_PATH);
+            if (!Files.isDirectory(DIR_PATH))
+                Files.createDirectories(DIR_PATH);
             Path file = DIR_PATH.resolve(FILE_NAME);
             Path tempFile = file.resolveSibling(file.getFileName() + ".tmp");
-            try (OutputStreamWriter writer = new OutputStreamWriter(
-                    new FileOutputStream(tempFile.toFile()), StandardCharsets.UTF_8)) {
+            try (
+                    OutputStreamWriter writer = new OutputStreamWriter(
+                            new FileOutputStream(tempFile.toFile()),
+                            StandardCharsets.UTF_8
+                    )
+            ) {
                 writer.write(GSON.toJson(instance));
             } catch (IOException e) {
                 throw new IOException(e);
             }
-            Files.move(tempFile, file, StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.move(
+                    tempFile,
+                    file,
+                    StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
             ClaimPoints.onConfigSaved(instance);
         } catch (IOException e) {
             ClaimPoints.LOG.error("Unable to save config", e);

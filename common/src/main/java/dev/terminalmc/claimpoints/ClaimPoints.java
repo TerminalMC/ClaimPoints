@@ -17,11 +17,12 @@
 package dev.terminalmc.claimpoints;
 
 import dev.terminalmc.claimpoints.config.Config;
-import dev.terminalmc.claimpoints.util.CommandUtil;
+import dev.terminalmc.claimpoints.compat.chat.ChatScanner;
+import dev.terminalmc.claimpoints.compat.chat.CommandManager;
 import dev.terminalmc.claimpoints.util.ModLogger;
-import dev.terminalmc.claimpoints.util.ChatScanner;
-import dev.terminalmc.claimpoints.xaero.WaypointManager;
+import dev.terminalmc.claimpoints.compat.minimap.WaypointManager;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ClaimPoints {
+
     public static final String MOD_ID = "claimpoints";
     public static final String MOD_NAME = "ClaimPoints";
     public static final String COMMAND_ALIAS = "cp";
@@ -39,6 +41,7 @@ public class ClaimPoints {
             .append(Component.literal("P").withStyle(ChatFormatting.DARK_AQUA))
             .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
             .withStyle(ChatFormatting.GRAY);
+    public static final List<KeyMapping> KEYBINDS = List.of();
 
     public static @Nullable String lastConnectedIp = null;
     public static WaypointManager waypointManager = null;
@@ -50,12 +53,12 @@ public class ClaimPoints {
         Config.getAndSave();
     }
 
-    public static void onEndTick(Minecraft mc) {
-        CommandUtil.tick(mc);
+    public static void afterClientTick(Minecraft mc) {
+        CommandManager.tick(mc);
         ChatScanner.checkStop();
     }
 
     public static void onConfigSaved(Config config) {
-        // If you are maintaining caches based on config values, update them here.
+        // If you are maintaining caches based on config, update them here.
     }
 }

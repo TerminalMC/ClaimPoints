@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.terminalmc.claimpoints.util;
+package dev.terminalmc.claimpoints.compat.chat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -22,13 +22,14 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandUtil {
+public class CommandManager {
+
     private static final List<DelayedCommand> commands = new ArrayList<>();
-    
+
     public static void addCommand(String command, int delayTicks) {
         commands.add(new DelayedCommand(command, delayTicks));
     }
-    
+
     public static void tick(Minecraft mc) {
         ClientPacketListener connection = mc.getConnection();
         if (connection != null && connection.isAcceptingMessages()) {
@@ -37,21 +38,19 @@ public class CommandUtil {
             commands.clear();
         }
     }
-    
+
     static class DelayedCommand {
-        String command;
+
+        final String command;
         int remainingTicks;
 
         DelayedCommand(String command, int remainingTicks) {
-            this.command = command;
+            this.command = command.startsWith("/") ? command.substring(1) : command;
             this.remainingTicks = remainingTicks;
         }
 
         boolean tick(ClientPacketListener connection) {
             if (--remainingTicks <= 0) {
-                if (command.startsWith("/")) {
-                    command = command.substring(1);
-                }
                 connection.sendCommand(command);
                 return true;
             }
