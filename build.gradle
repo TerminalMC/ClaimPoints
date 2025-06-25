@@ -94,13 +94,13 @@ subprojects {
                                 final mrDepData = depData[2].split(":")
                                 final type = mrDepData[0]
                                 if (type == "req") {
-                                    requires(mrDepData[1])
+                                    requires { id = mrDepData[1] }
                                 } else if (type == "opt") {
-                                    optional(mrDepData[1])
+                                    optional { id = mrDepData[1] }
                                 } else if (type == "inc") {
-                                    incompatible(mrDepData[1])
+                                    incompatible { id = mrDepData[1] }
                                 } else if (type == "emb") {
-                                    embeds(mrDepData[1])
+                                    embeds { id = mrDepData[1] }
                                 } else {
                                     throw new IllegalArgumentException(
                                             "Unrecognized dependency type: ${mrDepData[0]}"
@@ -173,7 +173,7 @@ subprojects {
                     return hasSpConf
                             && prop.has("mod_curseforge_id")
                             && prop.has("mod_curseforge_slug")
-                            && (it["dryRun"].get() || env.has("MODRINTH_TOKEN"))
+                            && (it["dryRun"].get() || env.has("CURSEFORGE_TOKEN"))
                 }
             }
         }
