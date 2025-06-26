@@ -114,8 +114,13 @@ subprojects {
                         }
                     }
                     // Sync Modrinth description with README
-                    projectDescription = rootProject.file("README.md").text.replaceAll("src=\"\\./",
-                            "src=\"https://raw.githubusercontent.com/${mod_github_repo}/HEAD/")
+                    if (prop.has("mod_github_repo")) {
+                        projectDescription = rootProject.file("README.md").text.replaceAll(
+                                "src=\"\\./",
+                                "src=\"https://raw.githubusercontent.com/${prop.get("mod_github_repo")}/HEAD/"
+                        )
+                        return
+                    }
                 }
                 // CurseForge configuration
                 curseforge {
