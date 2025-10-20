@@ -37,11 +37,9 @@ class PropUtil {
      @return the value of the property, CSV-split.
      */
     String[] list(String propertyName) {
-        final list = project.property(propertyName).toString().split(",")
-        for (int i = 0; i < list.length; i++) {
-            list[i] = list[i].strip()
-        }
-        return list
+        return project.property(propertyName).toString().split(",")
+                .findAll { !it.isBlank() }
+                .collect { it.strip() }
     }
 
     /**

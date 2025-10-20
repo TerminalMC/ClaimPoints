@@ -23,13 +23,17 @@
   "provides": [],
 
   "entrypoints": {
-    "main": [],
-    "client": [
-      "dev.terminalmc.claimpoints.ClaimPointsFabric"
+    "main": [
+      $fabric_entrypoints_main
     ],
-    "server": [],
+    "client": [
+      $fabric_entrypoints_client
+    ],
+    "server": [
+      $fabric_entrypoints_server
+    ],
     "modmenu": [
-      ${fabric_modmenu_entrypoint}
+      $fabric_entrypoints_modmenu
     ]
   },
 

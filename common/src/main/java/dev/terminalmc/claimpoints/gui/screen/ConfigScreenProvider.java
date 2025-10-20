@@ -36,7 +36,7 @@ public class ConfigScreenProvider {
         try {
             return ClothScreenProvider.getConfigScreen(parent);
         } catch (NoClassDefFoundError ignored) {
-            return new BackupScreen(parent, "installCloth", "https://modrinth.com/mod/9s6osm5g");
+            return new BackupScreen(parent, "installCloth", "https://modrinth.com/project/9s6osm5g");
         }
     }
 
@@ -66,15 +66,18 @@ public class ConfigScreenProvider {
             addRenderableWidget(messageWidget);
 
             Button openLinkButton = Button.builder(
-                    localized("message", "viewModrinth"),
-                    (button) -> Minecraft.getInstance().setScreen(new ConfirmLinkScreen(
-                            (open) -> {
-                                if (open)
-                                    Util.getPlatform().openUri(modUrl);
-                                Minecraft.getInstance().setScreen(parent);
-                            }, modUrl, true
-                    ))
-            ).pos(width / 2 - 120, height / 2).size(115, 20).build();
+                            localized("message", "viewModrinth"),
+                            (button) -> Minecraft.getInstance().setScreen(new ConfirmLinkScreen(
+                                    (open) -> {
+                                        if (open)
+                                            Util.getPlatform().openUri(modUrl);
+                                        onClose();
+                                    }, modUrl, true
+                            ))
+                    )
+                    .pos(width / 2 - 120, height / 2)
+                    .size(115, 20)
+                    .build();
             addRenderableWidget(openLinkButton);
 
             Button exitButton = Button.builder(CommonComponents.GUI_OK, (button) -> onClose())
@@ -82,6 +85,11 @@ public class ConfigScreenProvider {
                     .size(115, 20)
                     .build();
             addRenderableWidget(exitButton);
+        }
+
+        @Override
+        public void onClose() {
+            Minecraft.getInstance().setScreen(parent);
         }
     }
 }

@@ -149,7 +149,10 @@ processResources {
             // Fabric
             "fabric_loader_versions_list": asJsonList(fabric_loader_versions),
             "fabric_api_versions_list": asJsonList(fabric_api_versions),
-            "fabric_modmenu_entrypoint": "",
+            "fabric_entrypoints_main"   : asJsonListPrefixed(fabric_entrypoints_main, "${mod_group}.${mod_id}."),
+            "fabric_entrypoints_client" : asJsonListPrefixed(fabric_entrypoints_client, "${mod_group}.${mod_id}."),
+            "fabric_entrypoints_server" : asJsonListPrefixed(fabric_entrypoints_server, "${mod_group}.${mod_id}."),
+            "fabric_entrypoints_modmenu": asJsonListPrefixed(fabric_entrypoints_modmenu, "${mod_group}.${mod_id}."),
             // NeoForge
             "neoforge_versions"      : neoforge_versions,
             // Dependencies:
@@ -172,15 +175,12 @@ processResources {
                 final depList = "[${asJsonList(project.property("vr_fabric_${dep}").toString())}]"
                 final value = "${expandProps[key]}${prefix}\"${loaderData[1]}\": ${depList}"
                 expandProps[key] = value.toString()
-                logger.info("Fabric metadata '${key}': ${expandProps[key]}")
+//                logger.info("Fabric metadata '${key}': ${expandProps[key]}")
             }
         } catch (Exception ex) {
             logger.error("Error processing Fabric dependency metadata for '${dep}'. "
                     + "Check dependency property format.")
             throw ex
-        }
-        if (dep == "modmenu") {
-            expandProps["fabric_modmenu_entrypoint"] = "dev.terminalmc.claimpoints.compat.modmenu.ModMenuImpl"
         }
     }
     if (!expandProps["fabric_depends"].isBlank()) {
@@ -204,7 +204,7 @@ processResources {
             throw ex
         }
     }
-    logger.info("NeoForge metadata 'neoforge_all_deps': ${expandProps["neoforge_all_deps"]}")
+//    logger.info("NeoForge metadata 'neoforge_all_deps': ${expandProps["neoforge_all_deps"]}")
 
     filesMatching(["pack.mcmeta", "*.mod.json", "*.mixins.json", "META-INF/*.toml"]) {
         expand(expandProps)
@@ -226,14 +226,31 @@ publishing {
  * Converts a CSV list into an FMJ-usable format.
  */
 static asJsonList(String csvString) {
-    return csvString.split(",").collect { "\"$it\"" }.join(",")
+    return csvString.split(",")
+            .findAll { !it.isBlank() }
+            .collect { "\"${it.strip()}\"" }
+            .join(",")
+}
+
+/**
+ * Converts a CSV list into an FMJ-usable list format, prefixing each element with the source
+ * package (${mod_group}.${mod_id}).
+ */
+static asJsonListPrefixed(String csvString, String prefix) {
+    return csvString.split(",")
+            .findAll { !it.isBlank() }
+            .collect { "\"${prefix}${it.strip()}\"" }
+            .join(",")
 }
 
 /**
  * Converts a CSV list into an NMT-usable format.
  */
 static asTomlList(String csvString) {
-    return csvString.split(",").join(", ")
+    return csvString.split(",")
+            .findAll { !it.isBlank() }
+            .collect { it.strip() }
+            .join(", ")
 }
 
 /**
