@@ -1,8 +1,12 @@
 # Changelog
 
+## 2.0.8
+
+- Updated to Xaero's Minimap 25.3.5
+
 ## 2.0.7
 
-- Updated to modern Minimap codebase
+- Updated to Xaero's Minimap 25.2.6
 
 ## 2.0.6
 

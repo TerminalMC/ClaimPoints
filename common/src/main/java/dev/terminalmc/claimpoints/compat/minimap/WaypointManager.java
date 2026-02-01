@@ -19,8 +19,8 @@ package dev.terminalmc.claimpoints.compat.minimap;
 import dev.terminalmc.claimpoints.ClaimPoints;
 import dev.terminalmc.claimpoints.compat.Claim;
 import dev.terminalmc.claimpoints.config.Config;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import xaero.common.minimap.waypoints.Waypoint;
-import xaero.common.settings.ModSettings;
 import xaero.hud.minimap.BuiltInHudModules;
 import xaero.hud.minimap.module.MinimapSession;
 import xaero.hud.minimap.waypoint.WaypointColor;
@@ -38,7 +38,8 @@ import java.util.regex.Matcher;
 public class WaypointManager {
 
     public List<String> getColorNames() {
-        return Arrays.asList(ModSettings.ENCHANT_COLOR_NAMES);
+        return Arrays.stream(WaypointColor.values())
+                .map((c) -> ((TranslatableContents) c.getName().getContents()).getKey()).toList();
     }
 
     private MinimapSession getSession() {
