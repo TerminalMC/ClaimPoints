@@ -19,7 +19,7 @@ package dev.terminalmc.claimpoints.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.terminalmc.claimpoints.ClaimPoints;
-import dev.terminalmc.claimpoints.platform.Services;
+import dev.terminalmc.claimpoints.platform.services.PlatformServices;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class Config {
 
-    private static final Path DIR_PATH = Services.PLATFORM.getConfigDir();
+    private static final Path DIR_PATH = PlatformServices.getInstance().getConfigDir();
     private static final String FILE_NAME = ClaimPoints.MOD_ID + ".json";
     private static final String BACKUP_FILE_NAME = ClaimPoints.MOD_ID + ".unreadable.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();

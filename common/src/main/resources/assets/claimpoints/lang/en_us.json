@@ -10,6 +10,7 @@
   "message.claimpoints.command.help.waypoints.set.nameFormat": "Sets the name format of all claim waypoints to the specified value. Note: the name format must contain %%\u200Cd.",
   "message.claimpoints.command.help.waypoints.show": "Enables (shows) all claim waypoints in the active waypoint list.",
   "message.claimpoints.command.help.worlds": "Lists the GriefPrevention worlds in which you have active claims, and stores them for future autocompletion.",
+  "message.claimpoints.configScreenDisabled": "Config screen is not available on this version.",
   "message.claimpoints.installCloth": "Install Cloth Config API to access mod options.",
   "message.claimpoints.scanner.added": "Added %s claims from '%s' to the active waypoint list.",
   "message.claimpoints.scanner.editConfig": "If the claim list appears in chat, you need to adjust the regex patterns in ClaimPoints config to detect it.",

@@ -21,14 +21,15 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
+@SuppressWarnings("unused")
 public class ClaimPointsFabric implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
         // Register keybinds
-        ClaimPoints.KEYBINDS.forEach(KeyBindingHelper::registerKeyBinding);
+        ClaimPoints.KEYBINDS.forEach(KeyMappingHelper::registerKeyMapping);
 
         // Register client commands
         ClientCommandRegistrationCallback.EVENT.register(((dispatcher, buildContext) ->

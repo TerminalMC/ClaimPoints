@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.0
+
+- Updated to mc26.1
+
 ## 2.0.8
 
 - Updated to Xaero's Minimap 25.3.5

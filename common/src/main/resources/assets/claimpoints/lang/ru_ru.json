@@ -10,6 +10,7 @@
   "message.claimpoints.command.help.waypoints.set.nameFormat": "Устанавливает формат имени для всех точек участков в указанное значение. Примечание: формат имени должен содержать %%\u200Cd.",
   "message.claimpoints.command.help.waypoints.show": "Включает (показывает) все точки участков в активном списке точек.",
   "message.claimpoints.command.help.worlds": "Отображает миры GriefPrevention, в которых у вас есть активные участки, и сохраняет их для будущего автодополнения.",
+  "message.claimpoints.configScreenDisabled": "Config screen is not available on this version.",
   "message.claimpoints.installCloth": "Установите Cloth Config API для доступа к параметрам мода.",
   "message.claimpoints.scanner.added": "Добавлено %s участков из '%s' в список активных точек.",
   "message.claimpoints.scanner.editConfig": "Если список участков появляется в чате, настройте шаблоны regex в конфигурации ClaimPoints, чтобы их распознать.",

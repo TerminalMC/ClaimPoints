@@ -257,6 +257,6 @@ public class Commands<S> extends CommandDispatcher<S> {
     }
 
     private static void send(Component message) {
-        Minecraft.getInstance().gui.getChat().addMessage(message);
+        Minecraft.getInstance().gui.getChat().addClientSystemMessage(message);
     }
 }
