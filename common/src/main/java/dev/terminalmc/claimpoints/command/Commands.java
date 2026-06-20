@@ -49,7 +49,7 @@ public class Commands {
         //noinspection unchecked
         dispatcher.register((LiteralArgumentBuilder<S>) literal(ClaimPoints.COMMAND_ALIAS)
                 .executes(ctx -> {
-                    mc.schedule(() -> mc.setScreen(ConfigScreenProvider.getConfigScreen(null)));
+                    mc.schedule(() -> mc.gui.setScreen(ConfigScreenProvider.getConfigScreen(null)));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(literal("help")
@@ -296,6 +296,6 @@ public class Commands {
     }
 
     private static void send(Component message) {
-        Minecraft.getInstance().gui.getChat().addClientSystemMessage(message);
+        Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(message);
     }
 }

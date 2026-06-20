@@ -41,7 +41,11 @@ public class ConfigScreenProvider {
             return ClothScreenProvider.getConfigScreen(parent);
 //            return new DisabledScreen(parent);
         } catch (NoClassDefFoundError ignored) {
-            return new BackupScreen(parent, "installCloth", "https://modrinth.com/project/9s6osm5g");
+            return new BackupScreen(
+                    parent,
+                    "installCloth",
+                    "https://modrinth.com/project/9s6osm5g"
+            );
         }
     }
 
@@ -72,7 +76,7 @@ public class ConfigScreenProvider {
 
             Button openLinkButton = Button.builder(
                             localized("message", "viewModrinth"),
-                            (button) -> Minecraft.getInstance().setScreen(new ConfirmLinkScreen(
+                            (button) -> Minecraft.getInstance().gui.setScreen(new ConfirmLinkScreen(
                                     (open) -> {
                                         if (open)
                                             Util.getPlatform().openUri(modUrl);
@@ -94,7 +98,7 @@ public class ConfigScreenProvider {
 
         @Override
         public void onClose() {
-            Minecraft.getInstance().setScreen(parent);
+            Minecraft.getInstance().gui.setScreen(parent);
         }
     }
 
@@ -129,7 +133,7 @@ public class ConfigScreenProvider {
 
         @Override
         public void onClose() {
-            Minecraft.getInstance().setScreen(parent);
+            Minecraft.getInstance().gui.setScreen(parent);
         }
     }
 }
