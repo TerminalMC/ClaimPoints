@@ -4,6 +4,7 @@
 
 - Reset `mc` version counter to 1 at mc1.0.0
 - Removed duplicate logger names
+- Add a `/claimpoints` command node to open the config screen
 
 ## 3.2.0
 

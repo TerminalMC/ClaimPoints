@@ -23,6 +23,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.terminalmc.claimpoints.ClaimPoints;
 import dev.terminalmc.claimpoints.compat.chat.ChatScanner;
 import dev.terminalmc.claimpoints.config.Config;
+import dev.terminalmc.claimpoints.gui.screen.ConfigScreenProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -47,6 +48,10 @@ public class Commands {
         Minecraft mc = Minecraft.getInstance();
         //noinspection unchecked
         dispatcher.register((LiteralArgumentBuilder<S>) literal(ClaimPoints.COMMAND_ALIAS)
+                .executes(ctx -> {
+                    mc.schedule(() -> mc.setScreen(ConfigScreenProvider.getConfigScreen(null)));
+                    return Command.SINGLE_SUCCESS;
+                })
                 .then(literal("help")
                         .executes(ctx -> showHelp())
                 )
