@@ -20,7 +20,12 @@ import dev.terminalmc.claimpoints.ClaimPoints;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-public final class Localization {
+@SuppressWarnings("unused")
+public class Localization {
+
+    private Localization() {
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
+    }
 
     public static String translationKey(String path) {
         return ClaimPoints.MOD_ID + "." + path;

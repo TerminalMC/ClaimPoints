@@ -37,71 +37,105 @@ import static dev.terminalmc.claimpoints.util.Localization.localized;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@SuppressWarnings("unchecked")
-public class Commands<S> extends CommandDispatcher<S> {
+public class Commands {
 
-    public void register(CommandDispatcher<S> dispatcher, CommandBuildContext buildContext) {
-        dispatcher.register((LiteralArgumentBuilder<S>) literal(ClaimPoints.COMMAND_ALIAS).then(
-                        literal("help").executes(ctx -> showHelp()))
-                .then(literal("waypoints").then(literal("show").executes(ctx -> showClaimPoints()))
-                        .then(literal("hide").executes(ctx -> hideClaimPoints()))
-                        .then(literal("clear").executes(ctx -> clearClaimPoints()))
-                        .then(literal("set").then(literal("nameformat").then(argument(
-                                        "name format",
-                                        StringArgumentType.greedyString()
-                                ).executes(ctx -> setNameFormat(StringArgumentType.getString(
+    private Commands() {
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
+    }
+
+    public static <S> void register(CommandDispatcher<S> dispatcher, CommandBuildContext buildCtx) {
+        Minecraft mc = Minecraft.getInstance();
+        //noinspection unchecked
+        dispatcher.register((LiteralArgumentBuilder<S>) literal(ClaimPoints.COMMAND_ALIAS)
+                .then(literal("help")
+                        .executes(ctx -> showHelp())
+                )
+                .then(literal("waypoints")
+                        .then(literal("show")
+                                .executes(ctx -> showClaimPoints())
+                        )
+                        .then(literal("hide")
+                                .executes(ctx -> hideClaimPoints())
+                        )
+                        .then(literal("clear")
+                                .executes(ctx -> clearClaimPoints())
+                        )
+                        .then(literal("set")
+                                .then(literal("nameformat")
+                                        .then(argument("format", StringArgumentType.greedyString())
+                                                .executes(ctx -> setNameFormat(
+                                                        StringArgumentType.getString(
+                                                                ctx,
+                                                                "format"
+                                                        )
+                                                ))
+                                        )
+                                )
+                                .then(literal("alias")
+                                        .then(argument("alias", StringArgumentType.greedyString())
+                                                .executes(ctx -> setAlias(
+                                                        StringArgumentType.getString(
+                                                                ctx,
+                                                                "alias"
+                                                        )
+                                                ))
+                                        )
+                                )
+                                .then(literal("color")
+                                        .then(argument("color", StringArgumentType.greedyString())
+                                                .suggests(((ctx, builder) -> SharedSuggestionProvider.suggest(
+                                                        ClaimPoints.waypointColorNames,
+                                                        builder
+                                                )))
+                                                .executes(ctx -> setColor(
+                                                        StringArgumentType.getString(
+                                                                ctx,
+                                                                "color"
+                                                        ))
+                                                )
+                                        )
+                                )
+                        )
+                )
+                .then(literal("worlds")
+                        .executes(ctx -> getWorlds())
+                )
+                .then(literal("add")
+                        .then(argument("world name", StringArgumentType.greedyString())
+                                .suggests(((ctx, builder) -> SharedSuggestionProvider.suggest(
+                                        ChatScanner.getWorlds(),
+                                        builder
+                                )))
+                                .executes(ctx -> addFrom(
+                                        StringArgumentType.getString(ctx, "world name")
+                                ))
+                        )
+                )
+                .then(literal("clean")
+                        .then(argument("world name", StringArgumentType.greedyString())
+                                .suggests(((ctx, builder) -> SharedSuggestionProvider.suggest(
+                                        ChatScanner.getWorlds(),
+                                        builder
+                                )))
+                                .executes(ctx -> cleanFrom(StringArgumentType.getString(
                                         ctx,
-                                        "name format"
-                                )))))
-                                .then(literal("alias").then(argument(
-                                        "alias",
-                                        StringArgumentType.greedyString()
-                                ).executes(ctx -> setAlias(StringArgumentType.getString(
+                                        "world name"
+                                )))
+                        )
+                )
+                .then(literal("update")
+                        .then(argument("world name", StringArgumentType.greedyString())
+                                .suggests(((ctx, builder) -> SharedSuggestionProvider.suggest(
+                                        ChatScanner.getWorlds(),
+                                        builder
+                                )))
+                                .executes(ctx -> updateFrom(StringArgumentType.getString(
                                         ctx,
-                                        "alias"
-                                )))))
-                                .then(literal("color").then(argument(
-                                        "color",
-                                        StringArgumentType.greedyString()
-                                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
-                                                ClaimPoints.waypointColorNames,
-                                                builder
-                                        )))
-                                        .executes(ctx -> setColor(StringArgumentType.getString(
-                                                ctx,
-                                                "color"
-                                        )))))))
-                .then(literal("worlds").executes(ctx -> getWorlds()))
-                .then(literal("add").then(argument(
-                        "world name",
-                        StringArgumentType.greedyString()
-                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
-                                ChatScanner.getWorlds(),
-                                builder
-                        )))
-                        .executes(ctx -> addFrom(StringArgumentType.getString(ctx, "world name")))))
-                .then(literal("clean").then(argument(
-                        "world name",
-                        StringArgumentType.greedyString()
-                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
-                                ChatScanner.getWorlds(),
-                                builder
-                        )))
-                        .executes(ctx -> cleanFrom(StringArgumentType.getString(
-                                ctx,
-                                "world name"
-                        )))))
-                .then(literal("update").then(argument(
-                        "world name",
-                        StringArgumentType.greedyString()
-                ).suggests(((context, builder) -> SharedSuggestionProvider.suggest(
-                                ChatScanner.getWorlds(),
-                                builder
-                        )))
-                        .executes(ctx -> updateFrom(StringArgumentType.getString(
-                                ctx,
-                                "world name"
-                        ))))));
+                                        "world name"
+                                )))
+                        )
+                )
+        );
     }
 
     private static int showClaimPoints() {

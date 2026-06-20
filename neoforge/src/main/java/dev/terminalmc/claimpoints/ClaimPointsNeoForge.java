@@ -19,7 +19,6 @@ package dev.terminalmc.claimpoints;
 import dev.terminalmc.claimpoints.command.Commands;
 import dev.terminalmc.claimpoints.gui.screen.ConfigScreenProvider;
 import net.minecraft.client.Minecraft;
-import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoadingContext;
@@ -66,14 +65,11 @@ public class ClaimPointsNeoForge {
     static class ClientEventHandler {
 
         /**
-         * Registers all client-side commands.
+         * Registers all client commands.
          */
         @SubscribeEvent
         static void registerClientCommands(RegisterClientCommandsEvent event) {
-            new Commands<CommandSourceStack>().register(
-                    event.getDispatcher(),
-                    event.getBuildContext()
-            );
+            Commands.register(event.getDispatcher(), event.getBuildContext());
         }
 
         /**
